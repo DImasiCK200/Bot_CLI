@@ -16,31 +16,6 @@
 
 ---
 
-## Пример структуры
-
-Application
-└─ run loop
-Context
-├─ accountManager
-├─ taskManager
-└─ menuStack
-AccountManager
-├─ accounts[]
-└─ current
-TaskManager
-└─ start()/status()/stop()
-Menu
-├─ title
-├─ items [{ label, command }]
-└─ descriptionFn(ctx)
-Commands
-├─ SelectAccountCommand
-├─ StartTaskCommand
-├─ ExitCommand
-└─ BackCommand
-
----
-
 ## Пример использования
 
 ```javascript
