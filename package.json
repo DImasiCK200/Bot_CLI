@@ -1,0 +1,12 @@
+{
+  "name": "cs2_cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "type": "module",
+  "author": "ShapkUshank",
+  "license": "ISC",
+  "description": ""
+}
