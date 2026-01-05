@@ -39,9 +39,6 @@ Commands
 ├─ ExitCommand
 └─ BackCommand
 
-csharp
-Копировать код
-
 ---
 
 ## Пример использования
