@@ -2,8 +2,10 @@ import { Account } from "./Account.js";
 
 export class AccountManager {
   constructor(accounts = []) {
-    this.accounts = this.initAccounts(accounts);
-    this.currentAccount = "";
+    this.accounts = [];
+    this.currentAccount = null;
+
+    this.addAccounts([accounts])
   }
 
   get currentAcountId() {
@@ -11,7 +13,7 @@ export class AccountManager {
   }
 
   initAccounts(accounts) {
-    const listAccounts = [...accounts] + this.accounts;
+    const listAccounts = accounts.concat([...this.accounts]);
     const usedIds = new Set(
       listAccounts.filter((item) => item.id != null).map((item) => item.id)
     );
@@ -27,8 +29,24 @@ export class AccountManager {
     });
   }
 
-  add(account) {
-    this.initAccounts([account])
+  addAccounts(accounts) {
+    if (!Array.isArray(accounts)) return
+
+    for (const account in accounts) {
+      this.addAccounts(account)
+    }
+  }
+
+  addAccount(data) {
+    const id = data.id ?? this.generateNextId()
+    const account = new Account({...data, id})
+
+    this.accounts.push(account)
+    return account
+  }
+
+  generateNextId() {
+    
   }
 
   del(id) {

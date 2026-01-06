@@ -1,9 +1,9 @@
 export class Context {
-  constructor({ accountManager }) {
+  constructor({ accountManager, storage }) {
     this.isRunning = true;
     this.menuStack = [];
     this.accountManager = accountManager;
-    this.currentAccount = "";
+    this.storage = storage;
   }
 
   get currentMenu() {

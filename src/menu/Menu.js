@@ -1,5 +1,5 @@
 export class Menu {
-  constructor(title, descriptionFn = () => '', items = []) {
+  constructor({ title, descriptionFn = () => "", items = [] }) {
     this.title = title;
     this.descriptionFn = descriptionFn;
     this.items = items;
