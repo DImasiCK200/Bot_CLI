@@ -1,55 +1,61 @@
 import { Account } from "./Account.js";
+import { NotfoundError, ValidationError } from "../errors/index.js";
 
 export class AccountManager {
-  constructor(accounts = []) {
+  constructor({ storage }) {
     this.accounts = [];
     this.currentAccount = null;
 
-    this.addAccounts([accounts])
+    this.storage = storage;
+
+    this.loadAccounts();
   }
 
   get currentAcountId() {
-    return this.currentAccount.id
+    return this.currentAccount?.id ?? null;
   }
 
-  initAccounts(accounts) {
-    const listAccounts = accounts.concat([...this.accounts]);
-    const usedIds = new Set(
-      listAccounts.filter((item) => item.id != null).map((item) => item.id)
-    );
+  // После переработки хранилища переделать
+  loadAccounts() {
+    const accounts = [
+      { accountName: "shapa" },
+      { accountName: "dildik" },
+      { accountName: "piska" },
+    ];
 
-    let nextId = Math.max(0, ...usedIds) + 1;
-
-    return listAccounts.map((item) => {
-      if (!Object.hasOwn(item, "id") || item.id == null) {
-        item.id = nextId;
-        nextId++;
-      }
-      return new Account(item);
-    });
+    if (!accounts.length) return;
+    this.addAccounts(accounts);
   }
 
   addAccounts(accounts) {
     if (!Array.isArray(accounts)) return
 
-    for (const account in accounts) {
-      this.addAccounts(account)
-    }
+    accounts.forEach((account) => {
+      this.addAccount(account);
+    });
   }
 
   addAccount(data) {
-    const id = data.id ?? this.generateNextId()
-    const account = new Account({...data, id})
+    const id = data.id ?? this.generateNextId();
+    const account = new Account({ ...data, id });
 
-    this.accounts.push(account)
-    return account
+    this.accounts.push(account);
+    return account;
   }
 
   generateNextId() {
-    
+    const ids = this.accounts.map((item) => item.id);
+    return Math.max(...ids, 0) + 1;
   }
 
-  del(id) {
-    this.accounts = filter((item) => item.id != id)
+  select(id) {
+    const account = this.accounts.find((item) => item.id === id);
+
+    if (!account) throw new NotfoundError(`There isn't account with id=${id}`);
+    this.currentAccount = account;
+  }
+
+  remove() {
+    this.accounts = filter((item) => item.id != id);
   }
 }

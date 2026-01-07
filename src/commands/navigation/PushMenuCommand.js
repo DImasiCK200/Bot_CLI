@@ -7,6 +7,6 @@ export class PushMenuCommand extends Command {
   }
 
   execute(ctx) {
-    ctx.pushMenu(this.menu);
+    ctx.menuManager.push(this.menu);
   }
 }

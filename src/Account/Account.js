@@ -19,7 +19,35 @@ export class Account {
     this.tradeManager
   }
 
+  rename(name) {
+    this.accountName = name
+  }
+
+  updatePassword(password) {
+    this.password = password
+  }
+
+  updateSharedSecret(sharedSecret) {
+    this.sharedSecret = sharedSecret
+  }
+
+  updateIdentitySecret(identitySecret) {
+    this.identitySecret = identitySecret
+  }
+
+  updateMarketApiKey(marketApiKey) {
+    this.marketApiKey = marketApiKey
+  }
+
+  updateCookie(cookie) {
+    this.cookie = cookie
+  }
+
   createSession() {
-    
+    try {
+      
+    } catch (err) {
+
+    }
   }
 }

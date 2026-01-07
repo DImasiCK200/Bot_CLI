@@ -8,26 +8,33 @@ export class ConsoleView {
     });
   }
 
-  showMenu(menu, ctx) {
+  showMenu(menu, items, ctx) {
     console.clear();
     console.log(menu.title);
     console.log(menu.getDescription(ctx));
-    menu.items.forEach((item, i) => {
+
+    items.forEach((item, i) => {
       console.log(`${i + 1}. ${item.label}`);
     });
   }
 
-  async getChoice(menu) {
+  showError(err) {
+    console.clear();
+    console.log("[ERROR]");
+    console.log(err.message);
+  }
+
+  async getChoice(items) {
     return new Promise((resolve) => {
       this.rl.question("> ", (answer) => {
         const index = Number(answer) - 1;
-        resolve(menu.items[index]);
+        resolve(items[index]);
       });
     });
   }
 
   close() {
     this.rl.close();
-    console.log("Readline is closed");
+    console.log("Readline closed");
   }
 }

@@ -1,20 +1,8 @@
 export class Context {
-  constructor({ accountManager, storage }) {
+  constructor({ accountManager, storage, menuManager }) {
     this.isRunning = true;
-    this.menuStack = [];
+    this.menuManager = menuManager;
     this.accountManager = accountManager;
     this.storage = storage;
-  }
-
-  get currentMenu() {
-    return this.menuStack[this.menuStack.length - 1];
-  }
-
-  pushMenu(menu) {
-    this.menuStack.push(menu);
-  }
-
-  popMenu() {
-    this.menuStack.pop();
   }
 }
