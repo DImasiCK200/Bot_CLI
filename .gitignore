@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Test file
 test.js
+
+# App data
+data/*

@@ -13,6 +13,14 @@ export class ConsoleView {
     console.log(message);
   }
 
+  showFlowOutput(flowResult) {
+    console.clear()
+    console.log(flowResult.title)
+    console.log(flowResult.description)
+    console.log();
+    console.log(flowResult.message);
+  }
+
   showMenu(menu, items, ctx) {
     console.clear();
     console.log(menu.title);
@@ -43,6 +51,14 @@ export class ConsoleView {
   async getEnter() {
     return new Promise((resolve) => {
       this.rl.question("Press Enter to continue..", () => resolve());
+    });
+  }
+
+  async getInput() {
+    return new Promise((resolve) => {
+      this.rl.question("> ", (answer) => {
+        resolve(answer);
+      });
     });
   }
 

@@ -13,23 +13,44 @@ export class Application {
 
   async run() {
     try {
+      let flowOutput = null;
       this.init();
 
       while (this.ctx.isRunning) {
         try {
+          if (this.ctx.activeFlow && flowOutput === null) {
+            flowOutput = this.ctx.activeFlow.start();
+          }
+
+          if (this.ctx.activeFlow) {
+            if (flowOutput?.message) {
+              this.view.showFlowOutput(flowOutput);
+            }
+
+            const input = await this.view.getInput();
+            flowOutput = this.ctx.activeFlow.handleInput(this.ctx, input);
+
+            if (flowOutput?.done) {
+              this.ctx.activeFlow = null;
+              flowOutput = null;
+            }
+
+            continue;
+          }
+
           const menuManager = this.ctx.menuManager;
           const menu = menuManager.current;
           const items = menuManager.getItems(this.ctx);
           this.view.showMenu(menu, items, this.ctx);
 
           const menuItem = await this.view.getChoice(items);
+
           if (menuItem) {
             menuItem.command.execute(this.ctx);
           }
         } catch (err) {
           this.handleError(err);
-          await this.view.getEnter()
-          // this.ctx.menuManager.pop()
+          await this.view.getEnter();
         }
       }
     } finally {
@@ -55,6 +76,7 @@ export class Application {
     }
 
     this.view.showError(new Error("Unexpected error"));
+    this.ctx.isRunning = false;
     console.error(err);
   }
 
