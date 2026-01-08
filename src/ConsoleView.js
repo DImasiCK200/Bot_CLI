@@ -33,7 +33,7 @@ export class ConsoleView {
     return new Promise((resolve, reject) => {
       this.rl.question("> ", (answer) => {
         if (!Number(answer))
-          return reject(new ValidationError("Input must be Number"));
+          return reject(new ValidationError("Input must be Number > 0"));
         const index = Number(answer) - 1;
         resolve(items[index]);
       });
