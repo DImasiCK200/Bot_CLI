@@ -1,9 +1,7 @@
 export class Storage {
-  load(key) {}
+  loadAccounts() {}
 
-  save(key, value) {}
-
-  remove(key) {}
+  saveAccounts(value) {}
 
   close() {}
 }

@@ -4,5 +4,7 @@ export class Context {
     this.menuManager = menuManager;
     this.accountManager = accountManager;
     this.storage = storage;
+
+    this.activeFlow = null
   }
 }

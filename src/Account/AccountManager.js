@@ -7,28 +7,27 @@ export class AccountManager {
     this.currentAccount = null;
 
     this.storage = storage;
-
-    this.loadAccounts();
   }
 
-  get currentAcountId() {
+  get currentId() {
     return this.currentAccount?.id ?? null;
   }
 
   // После переработки хранилища переделать
-  loadAccounts() {
-    const accounts = [
-      { accountName: "shapa" },
-      { accountName: "dildik" },
-      { accountName: "piska" },
-    ];
+  async load() {
+    const accounts = await this.storage.loadAccounts()
 
     if (!accounts.length) return;
     this.addAccounts(accounts);
   }
 
+  async save() {
+    if (!this.accounts) throw new ValidationError("Nothing accounts to save")
+    await this.storage.saveAccounts(this.accounts)
+  }
+
   addAccounts(accounts) {
-    if (!Array.isArray(accounts)) return
+    if (!Array.isArray(accounts)) return;
 
     accounts.forEach((account) => {
       this.addAccount(account);
@@ -56,6 +55,6 @@ export class AccountManager {
   }
 
   remove() {
-    this.accounts = filter((item) => item.id != id);
+    this.accounts = filter((item) => item.id != this.currentId);
   }
 }

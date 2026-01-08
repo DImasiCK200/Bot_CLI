@@ -1,4 +1,5 @@
 import readline from "readline";
+import { ValidationError } from "./errors/index.js";
 
 export class ConsoleView {
   constructor() {
@@ -6,6 +7,10 @@ export class ConsoleView {
       input: process.stdin,
       output: process.stdout,
     });
+  }
+
+  showMessage(message) {
+    console.log(message);
   }
 
   showMenu(menu, items, ctx) {
@@ -25,11 +30,19 @@ export class ConsoleView {
   }
 
   async getChoice(items) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.rl.question("> ", (answer) => {
+        if (!Number(answer))
+          return reject(new ValidationError("Input must be Number"));
         const index = Number(answer) - 1;
         resolve(items[index]);
       });
+    });
+  }
+
+  async getEnter() {
+    return new Promise((resolve) => {
+      this.rl.question("Press Enter to continue..", () => resolve());
     });
   }
 

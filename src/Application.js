@@ -6,21 +6,32 @@ export class Application {
     this.view = view;
   }
 
+  async init() {
+    this.ctx.storage.ensureDir();
+    this.ctx.accountManager.load();
+  }
+
   async run() {
     try {
-      while (this.ctx.isRunning) {
-        const menuManager = this.ctx.menuManager
-        const menu = menuManager.current;
-        const items = menuManager.getItems(this.ctx)
-        this.view.showMenu(menu, items, this.ctx);
+      this.init();
 
-        const menuItem = await this.view.getChoice(items);
-        if (menuItem) {
-          menuItem.command.execute(this.ctx);
+      while (this.ctx.isRunning) {
+        try {
+          const menuManager = this.ctx.menuManager;
+          const menu = menuManager.current;
+          const items = menuManager.getItems(this.ctx);
+          this.view.showMenu(menu, items, this.ctx);
+
+          const menuItem = await this.view.getChoice(items);
+          if (menuItem) {
+            menuItem.command.execute(this.ctx);
+          }
+        } catch (err) {
+          this.handleError(err);
+          await this.view.getEnter()
+          // this.ctx.menuManager.pop()
         }
       }
-    } catch (err) {
-      this.handleError(err);
     } finally {
       this.shutdown();
     }
