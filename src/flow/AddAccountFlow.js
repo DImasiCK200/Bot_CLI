@@ -70,7 +70,7 @@ export class AddAccountFlow extends Flow {
     if (this.step === 4) {
       this.data.marketApiKey = input;
       ctx.accountManager.addAccount(this.data);
-      ctx.accountManager.save()
+      ctx.accountManager.save() // Maybe add await?
       return new FlowResult({
         title: this.title,
         description: this.description,

@@ -15,15 +15,15 @@ export class AccountManager {
 
   // После переработки хранилища переделать
   async load() {
-    const accounts = await this.storage.loadAccounts()
+    const accounts = await this.storage.loadAccounts();
 
     if (!accounts.length) return;
     this.addAccounts(accounts);
   }
 
   async save() {
-    if (!this.accounts) throw new ValidationError("Nothing accounts to save")
-    await this.storage.saveAccounts(this.accounts)
+    if (!this.accounts) throw new ValidationError("Nothing accounts to save");
+    await this.storage.saveAccounts(this.accounts);
   }
 
   addAccounts(accounts) {
@@ -50,8 +50,9 @@ export class AccountManager {
   select(id) {
     const account = this.accounts.find((item) => item.id === id);
 
-    if (!account) throw new NotfoundError(`There isn't account with id=${id}`);
-    this.currentAccount = account;
+    if (!account) return false;
+    this.currentAccount = account
+    return true;
   }
 
   remove() {

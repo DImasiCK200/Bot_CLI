@@ -4,10 +4,11 @@ import path from "path";
 import fs from "fs/promises";
 
 export class FileStorage extends Storage {
-  constructor(baseDir = "./data", accountFile = "accounts.json") {
+  constructor(baseDir = "./data", accountFile = "accounts.json", stateFile = "state.json") {
     super();
     this.baseDir = baseDir;
     this.accountFile = accountFile;
+    this.stateFile = stateFile;
   }
 
   async ensureDir() {
@@ -17,15 +18,15 @@ export class FileStorage extends Storage {
   // Base storage methods
   async readJson(file, fallback = []) {
     try {
-      const fullPath = path.join(this.baseDir, file);      
+      const fullPath = path.join(this.baseDir, file);
       const data = await fs.readFile(fullPath, "utf-8");
-      const json = JSON.parse(data)
+      const json = JSON.parse(data);
       return json;
     } catch (err) {
       if (err.code === "ENOENT") {
         return fallback;
       }
-      throw err
+      throw err;
     }
   }
 
@@ -43,6 +44,16 @@ export class FileStorage extends Storage {
   async saveAccounts(accounts) {
     await this.writeJson(this.accountFile, accounts);
   }
+
+  // Methods for AppState
+  async loadAppState() {
+    return await this.readJson(this.stateFile)
+  }
+
+  async saveAppState(state) {
+    await this.writeJson(this.stateFile, state)
+  }
+
   // Close storage
   close() {
     console.log("Storage closed");

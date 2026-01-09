@@ -5,49 +5,46 @@ export class Account {
     password,
     sharedSecret,
     identitySecret,
-    marketAPI,
+    marketApiKey,
   }) {
     this.id = id;
     this.accountName = accountName;
     this.password = password;
     this.sharedSecret = sharedSecret;
     this.identitySecret = identitySecret;
-    this.marketApiKey = marketAPI;
+    this.marketApiKey = marketApiKey;
 
-    this.session
-    this.cookie 
-    this.tradeManager
+    this.session;
+    this.cookie;
+    this.tradeManager;
   }
 
   rename(name) {
-    this.accountName = name
+    this.accountName = name;
   }
 
   updatePassword(password) {
-    this.password = password
+    this.password = password;
   }
 
   updateSharedSecret(sharedSecret) {
-    this.sharedSecret = sharedSecret
+    this.sharedSecret = sharedSecret;
   }
 
   updateIdentitySecret(identitySecret) {
-    this.identitySecret = identitySecret
+    this.identitySecret = identitySecret;
   }
 
   updateMarketApiKey(marketApiKey) {
-    this.marketApiKey = marketApiKey
+    this.marketApiKey = marketApiKey;
   }
 
   updateCookie(cookie) {
-    this.cookie = cookie
+    this.cookie = cookie;
   }
 
   createSession() {
     try {
-      
-    } catch (err) {
-
-    }
+    } catch (err) {}
   }
 }

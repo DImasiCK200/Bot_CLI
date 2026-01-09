@@ -1,3 +1,4 @@
+import { AppState } from "./AppState.js";
 import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
 
 export class Application {
@@ -7,17 +8,33 @@ export class Application {
   }
 
   async init() {
-    this.ctx.storage.ensureDir();
-    this.ctx.accountManager.load();
+    try {
+      await this.ctx.storage.ensureDir();
+
+      const state = await this.ctx.storage.loadAppState();
+      this.ctx.setAppState(new AppState(state));
+
+      await this.ctx.accountManager.load();
+
+      if (this.ctx.appState.accountId) {
+        if (!this.ctx.accountManager.select(this.ctx.appState.accountId)) {
+          this.ctx.appState.setAccountId(null);
+        }
+      }
+    } catch (err) {
+      this.handleError(err);
+      await this.view.getEnter();
+    }
   }
 
   async run() {
     try {
       let flowOutput = null;
-      this.init();
+      await this.init();
 
       while (this.ctx.isRunning) {
         try {
+          // Flow
           if (this.ctx.activeFlow && flowOutput === null) {
             flowOutput = this.ctx.activeFlow.start();
           }
@@ -38,6 +55,7 @@ export class Application {
             continue;
           }
 
+          //Menu
           const menuManager = this.ctx.menuManager;
           const menu = menuManager.current;
           const items = menuManager.getItems(this.ctx);
@@ -50,11 +68,12 @@ export class Application {
           }
         } catch (err) {
           this.handleError(err);
+          console.log("***");
           await this.view.getEnter();
         }
       }
     } finally {
-      this.shutdown();
+      await this.shutdown();
     }
   }
 
@@ -72,6 +91,7 @@ export class Application {
 
     if (err instanceof NotfoundError) {
       this.view.showError(err);
+      this.ctx.setAppState();
       return;
     }
 
@@ -80,8 +100,9 @@ export class Application {
     console.error(err);
   }
 
-  shutdown() {
-    this.view.close();
+  async shutdown() {
+    await this.ctx.storage.saveAppState(this.ctx.appState);
+    await this.view.close();
     console.log("Application closed");
   }
 }
