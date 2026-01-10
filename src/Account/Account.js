@@ -1,3 +1,6 @@
+import SteamCommunity from "steamcommunity";
+import SteamTotp from "steam-totp";
+
 export class Account {
   constructor({
     id,
@@ -14,9 +17,25 @@ export class Account {
     this.identitySecret = identitySecret;
     this.marketApiKey = marketApiKey;
 
-    this.session;
-    this.cookie;
+    this.steamCommunity = new SteamCommunity();
+    this.session = null;
     this.tradeManager;
+  }
+
+  get name() {
+    return this.accountName;
+  }
+
+  setSession(session) {
+    this.session = session;
+  }
+
+  setCookies(cookies) {
+    this.steamCommunity.setCookies(cookies)
+  }
+
+  setSessionId(sessionId) {
+    this.steamCommunity.sessionID = sessionId
   }
 
   rename(name) {
@@ -43,8 +62,28 @@ export class Account {
     this.cookie = cookie;
   }
 
-  createSession() {
-    try {
-    } catch (err) {}
+  loginAsync() {
+    return new Promise((resolve, reject) => {
+      this.steamCommunity.login(
+        {
+          accountName: this.accountName,
+          password: this.password,
+          twoFactorCode: SteamTotp.generateAuthCode(this.sharedSecret),
+        },
+        (loginError, sessionID, cookies, steamguard) => {
+          if (loginError) return reject(loginError);
+          resolve({ sessionID, cookies, steamguard });
+        }
+      );
+    });
+  }
+
+  getSteamUserAsync(steamID) {
+    return new Promise((resolve, reject) => {
+      this.steamCommunity.getSteamUser(steamID, (err, steamUser) => {
+        if (err) reject(new Error(err));
+        resolve(steamUser);
+      });
+    });
   }
 }

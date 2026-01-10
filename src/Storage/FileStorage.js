@@ -4,15 +4,25 @@ import path from "path";
 import fs from "fs/promises";
 
 export class FileStorage extends Storage {
-  constructor(baseDir = "./data", accountFile = "accounts.json", stateFile = "state.json") {
+  constructor({
+    baseDir = "./data",
+    subDirs = [],
+    accountFile = "accounts.json",
+    stateFile = "state.json",
+  }) {
     super();
     this.baseDir = baseDir;
+    this.subDirs = subDirs;
     this.accountFile = accountFile;
     this.stateFile = stateFile;
   }
 
   async ensureDir() {
-    return fs.mkdir(this.baseDir, { recursive: true });
+    return Promise.all(
+      this.subDirs.map((dir) =>
+        fs.mkdir(path.join(this.baseDir, dir), { recursive: true })
+      )
+    );
   }
 
   // Base storage methods
@@ -47,11 +57,28 @@ export class FileStorage extends Storage {
 
   // Methods for AppState
   async loadAppState() {
-    return await this.readJson(this.stateFile)
+    return await this.readJson(this.stateFile);
   }
 
   async saveAppState(state) {
-    await this.writeJson(this.stateFile, state)
+    await this.writeJson(this.stateFile, state);
+  }
+
+  // Methods for Account sessions
+  async loadAccountSession(accountName) {
+    return await this.readJson(path.join("session", `session_${accountName}.json`));
+  }
+
+  async saveAccountSession(accountName, session) {
+    const toSave = {
+      ...session,
+      createdAt: Date.now(),
+    };
+
+    await this.writeJson(
+      path.join("session", `session_${accountName}.json`, toSave),
+      session
+    );
   }
 
   // Close storage

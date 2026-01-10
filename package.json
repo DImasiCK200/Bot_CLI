@@ -8,5 +8,9 @@
   "type": "module",
   "author": "ShapkUshank",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "steam-totp": "^2.1.2",
+    "steamcommunity": "^3.48.8"
+  }
 }
