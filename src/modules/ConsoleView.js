@@ -14,11 +14,10 @@ export class ConsoleView {
   }
 
   showFlowOutput(flowResult) {
-    console.clear()
-    console.log(flowResult.title)
-    console.log(flowResult.description)
-    console.log();
-    console.log(flowResult.message);
+    console.clear();
+    console.log("[Title]:", flowResult.title);
+    console.log("[Desc]:", flowResult.description);
+    console.log("[Message]:", flowResult.message);
   }
 
   showMenu(menu, items, ctx) {

@@ -3,15 +3,13 @@ export class FlowResult {
     title = null,
     description = null,
     message = null,
-    data = {},
-    step = null,
     done = false,
+    command = null,
   }) {
     this.title = title;
     this.description = description;
     this.message = message;
     this.done = done;
-    this.data = data;
-    this.step = step;
+    this.command = command
   }
 }

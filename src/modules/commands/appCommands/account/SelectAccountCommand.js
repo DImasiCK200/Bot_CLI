@@ -1,4 +1,4 @@
-import { Command } from "../Command.js";
+import { Command } from "../../Command.js";
 
 export class SelectAccountCommand extends Command {
   constructor(accountId) {

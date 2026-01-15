@@ -1,5 +1,9 @@
 import { AppState } from "./AppState.js";
-import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
+import {
+  FatalError,
+  NotfoundError,
+  ValidationError,
+} from "./errors/index.js";
 
 export class Application {
   constructor(ctx, view) {
@@ -29,27 +33,32 @@ export class Application {
 
   async run() {
     try {
-      let flowOutput = null;
       await this.init();
 
       while (this.ctx.isRunning) {
         try {
           // Flow
-          if (this.ctx.activeFlow && flowOutput === null) {
-            flowOutput = this.ctx.activeFlow.start();
+          if (this.ctx.activeFlow && !this.ctx.activeFlow.started) {
+            const result = this.ctx.activeFlow.start();
+            this.ctx.activeFlow.started = true;
+            this.view.showFlowOutput(result);
           }
 
           if (this.ctx.activeFlow) {
-            if (flowOutput?.message) {
-              this.view.showFlowOutput(flowOutput);
-            }
-
             const input = await this.view.getInput();
-            flowOutput = this.ctx.activeFlow.handleInput(this.ctx, input);
+            const result = this.ctx.activeFlow.handleInput(input);
 
-            if (flowOutput?.done) {
-              this.ctx.activeFlow = null;
-              flowOutput = null;
+            if (result) {
+              if (result.message) {
+                this.view.showFlowOutput(result);
+              }
+
+              if (result.done) {
+                if (result.command) {
+                  result.command.execute(this.ctx);
+                }
+                this.ctx.activeFlow = null;
+              }
             }
 
             continue;
@@ -68,7 +77,6 @@ export class Application {
           }
         } catch (err) {
           this.handleError(err);
-          console.log("***");
           await this.view.getEnter();
         }
       }

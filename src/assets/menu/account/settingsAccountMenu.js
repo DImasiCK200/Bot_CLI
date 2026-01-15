@@ -1,4 +1,5 @@
 import { Menu, MenuItem } from "../../src/menu/index.js";
+import { RenameAccountCommand } from "../../../modules/commands/index.js";
 
 export const settingsAccountMenu = new Menu({
   title: "Settings",
@@ -7,7 +8,7 @@ export const settingsAccountMenu = new Menu({
       ctx.accountManager.currentAccount?.accountName ?? "not selected"
     }`,
   itemsFn: (ctx) => {
-    const items = [];
+    const items = [new MenuItem("Rename account", new RenameAccountCommand())];
 
     return items;
   },

@@ -1,6 +1,8 @@
 import { Menu, MenuItem } from "../../src/menu/index.js";
-import { SelectAccountCommand } from "../../src/commands/index.js";
-import { AddAccountCommand } from "../../src/commands/account/AddAccountCommand.js";
+import {
+  SelectAccountCommand,
+  AddAccountCommand,
+} from "../../../modules/commands/index.js";
 
 export const selectAccountMenu = new Menu({
   title: "Choose account",
@@ -13,7 +15,7 @@ export const selectAccountMenu = new Menu({
       (account) =>
         new MenuItem(account.accountName, new SelectAccountCommand(account.id))
     );
-    items.push(new MenuItem("Add account", new AddAccountCommand()))
+    items.push(new MenuItem("Add account", new AddAccountCommand()));
     return items;
   },
 });
