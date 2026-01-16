@@ -186,5 +186,6 @@ export class AccountManager {
   remove() {
     this.accounts = this.accounts.filter((item) => item.id != this.id);
     this.currentAccount = null;
+    this.save()
   }
 }
