@@ -1,5 +1,5 @@
-import { Menu, MenuItem } from "../src/menu/index.js";
-import { PushMenuCommand } from "../src/commands/index.js";
+import { Menu, MenuItem } from "../../modules/menu/index.js";
+import { PushMenuCommand } from "../../modules/commands/index.js";
 import { taskMenu } from "./taskMenu.js";
 import { accountMenu } from "./account/accountMenu.js";
 

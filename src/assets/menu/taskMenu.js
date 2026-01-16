@@ -1,4 +1,4 @@
-import { Menu, MenuItem } from "../src/menu/index.js";
+import { Menu, MenuItem } from "../../modules/menu/index.js";
 
 export const taskMenu = new Menu({
   title: "Tasks menu",

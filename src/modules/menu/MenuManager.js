@@ -1,4 +1,4 @@
-import { BackMenuCommand, ExitCommand } from "../modules/commands/index.js";
+import { BackMenuCommand, ExitCommand } from "../commands/index.js";
 import { MenuItem } from "./MenuItem.js";
 
 export class MenuManager {

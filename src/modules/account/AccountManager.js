@@ -1,5 +1,5 @@
 import { Account } from "./Account.js";
-import { NotfoundError, ValidationError } from "../modules/errors/index.js";
+import { NotfoundError, ValidationError } from "../errors/index.js";
 
 import SteamCommunity from "steamcommunity";
 import SteamTotp from "steam-totp";
@@ -184,6 +184,7 @@ export class AccountManager {
   }
 
   remove() {
-    this.accounts = filter((item) => item.id != this.id);
+    this.accounts = this.accounts.filter((item) => item.id != this.id);
+    this.currentAccount = null;
   }
 }

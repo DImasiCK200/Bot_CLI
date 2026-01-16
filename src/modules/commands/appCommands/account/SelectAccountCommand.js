@@ -11,5 +11,6 @@ export class SelectAccountCommand extends Command {
     ctx.storage.saveAppState(ctx.appState);
 
     ctx.accountManager.select(this.accountId);
+    ctx.menuManager.pop()
   }
 }

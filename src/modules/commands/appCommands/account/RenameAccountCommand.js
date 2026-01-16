@@ -1,4 +1,4 @@
-import { RenameAccountFlow } from "../../../../flow/RenameAccountFlow.js";
+import { RenameAccountFlow } from "../../../flow/accountFlow/RenameAccountFlow.js";
 import { Command } from "../../Command.js";
 
 export class RenameAccountCommand extends Command {
