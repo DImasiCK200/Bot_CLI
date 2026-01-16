@@ -143,3 +143,4 @@ test.js
 
 # App data
 data/*
+.DS_Store
