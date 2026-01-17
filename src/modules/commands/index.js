@@ -5,6 +5,14 @@ export { SelectAccountCommand } from "./appCommands/account/SelectAccountCommand
 export { AddAccountCommand } from "./appCommands/account/AddAccountCommand.js";
 export { RenameAccountCommand } from "./appCommands/account/RenameAccountCommand.js";
 export { DeleteAccountCommand } from "./appCommands/account/DeleteAccountCommand.js";
+export { UpdateIdentitySecretCommand } from "./appCommands/account/UpdateIdentitySecretCommand.js";
+export { UpdateSharedSecretCommand } from "./appCommands/account/UpdateSharedSecretCommand.js";
+export { UpdatePasswordCommand } from "./appCommands/account/UpdatePasswordCommand.js";
+export { UpdateMarketApiKeyCommand } from "./appCommands/account/UpdateMarketApiKeyCommand.js";
 
 export { AddAccountFlowCommand } from "./flowCommands/account/AddAccountFlowCommand.js";
 export { RenameAccountFlowCommand } from "./flowCommands/account/RenameAccountFlowCommand.js";
+export { UpdateIdentitySecretFlowCommand } from "./flowCommands/account/UpdateIdentitySecretFlowCommand.js";
+export { UpdateSharedSecretFlowCommand } from "./flowCommands/account/UpdateSharedSecretFlowCommand.js";
+export { UpdatePasswordFlowCommand } from "./flowCommands/account/UpdatePasswordFlowCommand.js";
+export { UpdateMarketApiKeyFlowCommand } from "./flowCommands/account/UpdateMarketApiKeyFlowCommand.js";

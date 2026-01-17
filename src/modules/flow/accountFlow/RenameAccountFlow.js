@@ -19,7 +19,7 @@ export class RenameAccountFlow extends WizardFlow {
     return this.newResult(
       "Account renamed succesfully!",
       true,
-      new RenameAccountFlowCommand(this.data)
+      new RenameAccountFlowCommand(this.data),
     );
   }
 }
