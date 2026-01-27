@@ -2,6 +2,7 @@ import { Account } from "./Account.js";
 import { NotfoundError, ValidationError } from "../errors/index.js";
 
 import SteamCommunity from "steamcommunity";
+import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamTotp from "steam-totp";
 
 const MAX_SESSION_AGE = 1000 * 60 * 60 * 24;
@@ -13,9 +14,9 @@ export class AccountManager {
 
     this.storage = storage;
 
-    this.steamCommunity = new SteamCommunity();
-    this.session = null;
-    this.tradeManager;
+    this.steamCommunity = null;
+    this.sessionData = null;
+    this.tradeManafger = null;
   }
 
   get id() {
@@ -81,6 +82,7 @@ export class AccountManager {
 
     if (!account) return false;
     this.currentAccount = account;
+    // this.getSession();
     return true;
   }
 
@@ -111,21 +113,22 @@ export class AccountManager {
 
   setCookies(cookies) {
     this.steamCommunity.setCookies(cookies);
+    this.tradeManager.setCookies(cookies)
   }
 
   setSessionId(sessionId) {
     this.steamCommunity.sessionID = sessionId;
   }
 
-  setSession(session) {
-    this.session = session;
+  setSessionData(session) {
+    this.sessionData = session;
   }
 
   async createSession() {
     const sessionData = await this.loginAsync();
 
-    this.setCookies(session.cookies);
-    this.setSessionId(session.sessionID);
+    this.setCookies(sessionData.cookies);
+    this.setSessionId(sessionData.sessionID);
 
     await this.saveSession(sessionData);
   }
@@ -133,7 +136,7 @@ export class AccountManager {
   async saveSession(sessionData) {
     await this.storage.saveAccountSession(
       this.currentAccount.name,
-      sessionData
+      sessionData,
     );
   }
 
@@ -154,6 +157,7 @@ export class AccountManager {
 
     this.setCookies(session.cookies);
     this.setSessionId(session.sessionID);
+    this.setSessionData(session);
 
     return true;
   }
@@ -169,9 +173,16 @@ export class AccountManager {
         (loginError, sessionID, cookies, steamguard) => {
           if (loginError) return reject(loginError);
           resolve({ sessionID, cookies, steamguard });
-        }
+        },
       );
     });
+  }
+
+  async getSession() {
+    this.steamCommunity = new SteamCommunity();
+    this.tradeManager = new TradeOfferManager();
+    const sessionLoaded = await this.tryLoadSession();
+    if (!sessionLoaded) await this.createSession();
   }
 
   getSteamUserAsync(steamID) {
@@ -186,6 +197,6 @@ export class AccountManager {
   remove() {
     this.accounts = this.accounts.filter((item) => item.id != this.id);
     this.currentAccount = null;
-    this.save()
+    this.save();
   }
 }
