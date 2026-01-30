@@ -1,37 +1,38 @@
 export class Task {
-  constructor({ accountId = null, data = {} }) {
-    this.id = null;
-    this.accountId = accountId;
-    this.status = "pending";
+  constructor({ id, name }) {
+    this.id = id;
+    this.name = name;
+
+    this.status = "pending"; // pending | running | done | failed | cancelled
     this.progress = 0;
     this.error = null;
-    this.data = data;
 
-    this.listeners = {};
+    this.createdAt = Date.now();
+    this.finishedAt = null;
   }
 
-  on(event, callback) {
-    this.listeners[event] ??= [];
-    this.listeners[event].push(callback);
+  async start(ctx) {
+    this.status = "running";
   }
 
-  emit(event, payload) {
-    this.listeners[event]?.forEach((callback) => {
-      callback(payload);
-    });
+  async cancel() {
+    this.status = "cancelled";
+    this.finishedAt = Date.now();
   }
 
   setProgress(value) {
     this.progress = value;
-    this.emit("progress", value);
   }
 
-  async run(ctx) {
-    throw new Error("run() not implemented");
+  finish() {
+    this.status = "done";
+    this.setProgress(100);
+    this.finishedAt = Date.now();
   }
 
-  cancel() {
-    this.status = "cancelled";
-    this.emit("cancelled");
+  fail(err) {
+    this.status = "error";
+    this.error = err;
+    this.finishedAt = Date.now();
   }
 }

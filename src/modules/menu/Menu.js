@@ -1,8 +1,14 @@
 export class Menu {
-  constructor({ title, descriptionFn = () => "", itemsFn = () => [] }) {
+  constructor({
+    title,
+    descriptionFn = () => "",
+    itemsFn = () => [],
+    isDynamic = false,
+  }) {
     this.title = title;
     this.descriptionFn = descriptionFn;
     this.itemsFn = itemsFn;
+    this.isDynamic = isDynamic;
   }
 
   getDescription(ctx) {

@@ -21,13 +21,29 @@ export class ConsoleView {
   }
 
   showMenu(menu, items, ctx) {
-    console.clear();
-    console.log(menu.title);
-    console.log(menu.getDescription(ctx));
+    let stop = false;
 
-    items.forEach((item, i) => {
-      console.log(`${i + 1}. ${item.label}`);
-    });
+    const render = () => {
+      console.clear();
+      console.log(menu.title);
+      console.log(menu.getDescription(ctx));
+
+      items.forEach((item, i) => {
+        console.log(`${i + 1}. ${item.label}`);
+      });
+    };
+
+    render();
+
+    if (!menu.isDynamic) return;
+
+    const interval = setInterval(() => {
+      if (ctx.menuManager.current !== menu || ctx.activeFlow) {
+        clearInterval(interval);
+        return;
+      }
+      render();
+    }, 300);
   }
 
   showError(err) {

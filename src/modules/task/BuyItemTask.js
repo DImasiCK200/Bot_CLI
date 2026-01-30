@@ -1,18 +1,29 @@
 import { Task } from "./Task.js";
 
 export class BuyItemTask extends Task {
-  async run(ctx) {
-    this.status = "running";
-    this.emit("status", this.status);
+  constructor({ accountId, itemName, price }) {
+    super({
+      id: crypto.randomUUID(),
+      name: `Buy item "${itemName}"`,
+    });
 
-    const account = ctx.accountManager.currentAccount;
+    this.accountId = accountId;
+    this.itemName = itemName;
+    this.price = price;
+  }
 
-    for (let i = 1; i <= 5; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
-      this.setProgress(i * 20);
+  async start(ctx) {
+    super.start(ctx);
+
+    try {
+      for (let i = 1; i <= 5; i++) {
+        await new Promise((r) => setTimeout(r, 1000));
+        this.setProgress(i * 20);
+      }
+
+      this.finish();
+    } catch (err) {
+      this.fail(err);
     }
-
-    this.status = "done";
-    this.emit("status", this.status);
   }
 }

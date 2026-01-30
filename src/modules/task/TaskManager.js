@@ -1,39 +1,28 @@
 export class TaskManager {
-  constructor(ctx) {
-    this.ctx = ctx;
-    this.active = new Map();
-    this.history = [];
-    this.nextId = 1;
+  constructor() {
+    this.tasks = [];
   }
 
-  create(task) {
-    task.id = this.nextId++;
-    this.active.set(task.id, task);
+  get list() {
+    return this.tasks;
+  }
 
-    this.run(task);
+  get running() {
+    return this.tasks.filter((t) => t.status === "running");
+  }
+
+  getHistory(limit = 10) {
+    return this.tasks.filter((t) => t.status !== "running").slice(-limit);
+  }
+
+  add(task, ctx) {
+    this.tasks.push(task);
+    task.start(ctx);
     return task;
   }
 
-  async run(task) {
-    try {
-      await task.run(this.ctx);
-    } catch (err) {
-      task.status = "failed";
-      task.error = err;
-    } finally {
-      this.active.delete(task.id);
-      this.history.unshift(task);
-    }
-  }
-
-  cancel(id) {
-    const task = this.active.get(id);
-    if (id) task.cancel();
-  }
-
-  retry(task) {
-    task.status = "pending";
-    task.progress = 0;
-    this.create(task);
+  cancel(taskId) {
+    const task = this.tasks.find((t) => t.id === taskId);
+    if (task) task.cancel();
   }
 }
