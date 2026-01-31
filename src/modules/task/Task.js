@@ -1,38 +1,47 @@
-export class Task {
-  constructor({ id, name }) {
-    this.id = id;
-    this.name = name;
+import EventEmitter from "events";
 
-    this.status = "pending"; // pending | running | done | failed | cancelled
+export class Task extends EventEmitter {
+  constructor({ id, type, title }) {
+    super();
+    this.id = id;
+    this.type = type;
+    this.title = title;
+
+    this.status = "pending"; // pending | running | done | error | cancelled
     this.progress = 0;
     this.error = null;
-
-    this.createdAt = Date.now();
+    this.startedAt = null;
     this.finishedAt = null;
   }
 
-  async start(ctx) {
+  start() {
     this.status = "running";
-  }
-
-  async cancel() {
-    this.status = "cancelled";
-    this.finishedAt = Date.now();
+    this.startedAt = new Date();
+    this.emit("update");
   }
 
   setProgress(value) {
     this.progress = value;
+    this.emit("update");
   }
 
-  finish() {
+  complete() {
     this.status = "done";
-    this.setProgress(100);
-    this.finishedAt = Date.now();
+    this.progress = 100;
+    this.finishedAt = new Date();
+    this.emit("update");
   }
 
   fail(err) {
     this.status = "error";
     this.error = err;
-    this.finishedAt = Date.now();
+    this.finishedAt = new Date();
+    this.emit("update");
+  }
+
+  cancel() {
+    this.status = "cancelled";
+    this.finishedAt = new Date();
+    this.emit("update");
   }
 }

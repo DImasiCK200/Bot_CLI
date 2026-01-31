@@ -1,28 +1,35 @@
-export class TaskManager {
+import EventEmitter from "events";
+
+export class TaskManager extends EventEmitter {
   constructor() {
+    super();
     this.tasks = [];
   }
 
-  get list() {
+  add(task) {
+    this.tasks.push(task);
+
+    task.on("update", () => {
+      this.emit("update", task);
+    });
+
+    return task;
+  }
+
+  run(task) {
+    this.add(task);
+    task.run();
+  }
+
+  getAll() {
     return this.tasks;
   }
 
-  get running() {
+  getRunning() {
     return this.tasks.filter((t) => t.status === "running");
   }
 
   getHistory(limit = 10) {
     return this.tasks.filter((t) => t.status !== "running").slice(-limit);
-  }
-
-  add(task, ctx) {
-    this.tasks.push(task);
-    task.start(ctx);
-    return task;
-  }
-
-  cancel(taskId) {
-    const task = this.tasks.find((t) => t.id === taskId);
-    if (task) task.cancel();
   }
 }

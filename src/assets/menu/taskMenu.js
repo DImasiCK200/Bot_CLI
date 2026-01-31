@@ -6,11 +6,16 @@ export const taskMenu = new Menu({
   isDynamic: true,
 
   descriptionFn: (ctx) => {
-    const tasks = ctx.taskManager.list;
+    const tasks = ctx.taskManager.getAll();
+
     if (!tasks.length) return "No tasks";
 
     return tasks
-      .map((t) => `[${t.status}, ${t.accountId}] ${t.name} - ${t.progress}%`)
+      .filter((t) => t.account.id === ctx.accountManager.id)
+      .map((t) => {
+        const p = t.progress ? ` ${t.progress}%` : "";
+        return `• ${t.title} [${t.status}]${p}`;
+      })
       .join("\n");
   },
 

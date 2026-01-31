@@ -1,9 +1,5 @@
 import { AppState } from "./AppState.js";
-import {
-  FatalError,
-  NotfoundError,
-  ValidationError,
-} from "./errors/index.js";
+import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
 
 export class Application {
   constructor(ctx, view) {
@@ -25,6 +21,8 @@ export class Application {
           this.ctx.appState.setAccountId(null);
         }
       }
+
+      this.setupSubscriptions();
     } catch (err) {
       this.handleError(err);
       await this.view.getEnter();
@@ -82,6 +80,22 @@ export class Application {
       }
     } finally {
       await this.shutdown();
+    }
+  }
+
+  setupSubscriptions() {
+    this.ctx.taskManager.on("update", () => {
+      this.refreshUI();
+    });
+  }
+
+  refreshUI() {
+    if (this.ctx.activeFlow) return;
+
+    const menu = this.ctx.menuManager.current;
+    if (menu?.isDynamic) {
+      const items = this.ctx.menuManager.getItems(this.ctx);
+      this.view.showMenu(menu, items, this.ctx);
     }
   }
 

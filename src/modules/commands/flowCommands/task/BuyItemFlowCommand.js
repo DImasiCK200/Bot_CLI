@@ -4,14 +4,11 @@ import { ValidationError } from "../../../errors/ValidationError.js";
 
 export class BuyItemFlowCommand extends FlowCommand {
   execute(ctx) {
-    const account = ctx.accountManager.currentAccount;
-    if (!account) throw new ValidationError("No account selected");
-
     const task = new BuyItemTask({
-      accountId: account.id,
-      ...this.data,
+      account: ctx.accountManager.currentAccount,
+      item: { name: this.data.itemName, price: this.data.price },
     });
 
-    ctx.taskManager.add(task, ctx);
+    ctx.taskManager.run(task);
   }
 }

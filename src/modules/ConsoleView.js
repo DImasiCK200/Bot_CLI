@@ -7,6 +7,16 @@ export class ConsoleView {
       input: process.stdin,
       output: process.stdout,
     });
+
+    this.lastRender = "";
+  }
+
+  render(text) {
+    readline.cursorTo(process.stdout, 0, 0);
+    readline.clearScreenDown(process.stdout);
+
+    process.stdout.write(text);
+    this.lastRender = text;
   }
 
   showMessage(message) {
@@ -24,13 +34,15 @@ export class ConsoleView {
     let stop = false;
 
     const render = () => {
-      console.clear();
-      console.log(menu.title);
-      console.log(menu.getDescription(ctx));
+      let output = "";
+      output += `${menu.title}\n`;
+      output += `${menu.getDescription(ctx)}\n\n`;
 
       items.forEach((item, i) => {
-        console.log(`${i + 1}. ${item.label}`);
+        output += `${i + 1}. ${item.label}\n`;
       });
+
+      this.render(output);
     };
 
     render();
