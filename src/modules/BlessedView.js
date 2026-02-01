@@ -60,7 +60,7 @@ export class BlessedView {
   showMenu(menu, items, ctx) {
     let output = "";
     output += `{bold}${menu.title}{/bold}\n`;
-    output += `${menu.getDescription(ctx)}\n\n`;
+    output += `${menu.getDescription(ctx)}\n`;
 
     items.forEach((item, i) => {
       output += `${i + 1}. ${item.label}\n`;

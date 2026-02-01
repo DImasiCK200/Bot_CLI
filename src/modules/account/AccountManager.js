@@ -16,7 +16,7 @@ export class AccountManager {
 
     this.steamCommunity = null;
     this.sessionData = null;
-    this.tradeManafger = null;
+    this.tradeManager = null;
   }
 
   get id() {
@@ -47,7 +47,7 @@ export class AccountManager {
     const accounts = await this.storage.loadAccounts();
 
     if (!accounts.length) return;
-    this.addAccounts(accounts);
+    this.addAccounts(accounts, false);
   }
 
   async save() {
@@ -55,20 +55,22 @@ export class AccountManager {
     await this.storage.saveAccounts(this.accounts);
   }
 
-  addAccounts(accounts) {
+  addAccounts(accounts, save = true) {
     if (!Array.isArray(accounts)) return;
 
     accounts.forEach((account) => {
-      this.addAccount(account);
+      this.addAccount(account, save);
     });
   }
 
-  addAccount(data) {
+  addAccount(data, save = true) {
     const id = data.id ?? this.generateNextId();
     const account = new Account({ ...data, id });
 
     this.accounts.push(account);
-    this.save();
+
+    if (save) this.save();
+
     return account;
   }
 
@@ -77,12 +79,12 @@ export class AccountManager {
     return Math.max(...ids, 0) + 1;
   }
 
-  select(id) {
+  async select(id) {
     const account = this.accounts.find((item) => item.id === id);
 
     if (!account) return false;
     this.currentAccount = account;
-    // this.getSession();
+    await this.getSession();
     return true;
   }
 
@@ -113,7 +115,7 @@ export class AccountManager {
 
   setCookies(cookies) {
     this.steamCommunity.setCookies(cookies);
-    this.tradeManager.setCookies(cookies)
+    this.tradeManager.setCookies(cookies);
   }
 
   setSessionId(sessionId) {
@@ -125,7 +127,7 @@ export class AccountManager {
   }
 
   async createSession() {
-    const sessionData = await this.loginAsync();
+    const sessionData = await this.loginAsync()
 
     this.setCookies(sessionData.cookies);
     this.setSessionId(sessionData.sessionID);
@@ -171,7 +173,7 @@ export class AccountManager {
           twoFactorCode: SteamTotp.generateAuthCode(this.sharedSecret),
         },
         (loginError, sessionID, cookies, steamguard) => {
-          if (loginError) return reject(loginError);
+          if (loginError) return reject(new ValidationError("Login failled, check account data!"));
           resolve({ sessionID, cookies, steamguard });
         },
       );
@@ -198,5 +200,9 @@ export class AccountManager {
     this.accounts = this.accounts.filter((item) => item.id != this.id);
     this.currentAccount = null;
     this.save();
+  }
+
+  async close() {
+    this.tradeManager.shutdown();
   }
 }

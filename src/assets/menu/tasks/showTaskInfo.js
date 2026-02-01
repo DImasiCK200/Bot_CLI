@@ -1,0 +1,13 @@
+import { Menu, MenuItem } from "../../../modules/menu/index.js";
+import { BuyItemCommand } from "../../../modules/commands/appCommands/tasks/BuyItemCommand.js";
+
+export const addTaskMenu = new Menu({
+  title: "Add task menu",
+  isDynamic: true,
+
+  descriptionFn: (ctx) => {
+    return `Choose task to activate`;
+  },
+
+  itemsFn: (ctx) => [new MenuItem("Test command", new BuyItemCommand(ctx))],
+});

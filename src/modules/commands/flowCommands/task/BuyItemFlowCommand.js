@@ -6,7 +6,7 @@ export class BuyItemFlowCommand extends FlowCommand {
   execute(ctx) {
     const task = new BuyItemTask({
       account: ctx.accountManager.currentAccount,
-      item: { name: this.data.itemName, price: this.data.price },
+      ...this.data,
     });
 
     ctx.taskManager.run(task);

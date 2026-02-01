@@ -66,7 +66,7 @@ export class FileStorage extends Storage {
 
   // Methods for Account sessions
   async loadAccountSession(accountName) {
-    return await this.readJson(path.join("session", `session_${accountName}.json`));
+    return await this.readJson(path.join("sessions", `session_${accountName}.json`));
   }
 
   async saveAccountSession(accountName, session) {
@@ -76,8 +76,8 @@ export class FileStorage extends Storage {
     };
 
     await this.writeJson(
-      path.join("session", `session_${accountName}.json`, toSave),
-      session
+      path.join("sessions", `session_${accountName}.json`),
+      toSave
     );
   }
 

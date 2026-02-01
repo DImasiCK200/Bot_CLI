@@ -12,11 +12,7 @@ export class ConsoleView {
   }
 
   render(text) {
-    readline.cursorTo(process.stdout, 0, 0);
-    readline.clearScreenDown(process.stdout);
-
-    process.stdout.write(text);
-    this.lastRender = text;
+    console.log(text);
   }
 
   showMessage(message) {
@@ -24,7 +20,7 @@ export class ConsoleView {
   }
 
   showFlowOutput(flowResult) {
-    console.clear();
+    // console.clear();
     console.log("[Title]:", flowResult.title);
     console.log("[Desc]:", flowResult.description);
     console.log("[Message]:", flowResult.message);
@@ -59,7 +55,7 @@ export class ConsoleView {
   }
 
   showError(err) {
-    console.clear();
+    // console.clear();
     console.log("[ERROR]");
     console.log(err.message);
   }

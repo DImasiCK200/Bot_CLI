@@ -1,5 +1,6 @@
-import { Menu, MenuItem } from "../../modules/menu/index.js";
-import { BuyItemCommand } from "../../modules/commands/appCommands/tasks/BuyItemCommand.js";
+import { Menu, MenuItem } from "../../../modules/menu/index.js";
+import { addTaskMenu } from "./addTaskMenu.js";
+import { PushMenuCommand } from "../../../modules/commands/index.js";
 
 export const taskMenu = new Menu({
   title: "Tasks menu",
@@ -19,5 +20,7 @@ export const taskMenu = new Menu({
       .join("\n");
   },
 
-  itemsFn: (ctx) => [new MenuItem("Test command", new BuyItemCommand(ctx))],
+  itemsFn: (ctx) => [
+    new MenuItem("Add task", new PushMenuCommand(addTaskMenu)),
+  ],
 });

@@ -6,11 +6,11 @@ export class SelectAccountCommand extends Command {
     this.accountId = accountId;
   }
 
-  execute(ctx) {
+  async execute(ctx) {
     ctx.appState.setAccountId(this.accountId);
     ctx.storage.saveAppState(ctx.appState);
 
-    ctx.accountManager.select(this.accountId);
-    ctx.menuManager.pop()
+    await ctx.accountManager.select(this.accountId);
+    ctx.menuManager.pop();
   }
 }

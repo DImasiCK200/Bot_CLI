@@ -17,7 +17,9 @@ export class Application {
       await this.ctx.accountManager.load();
 
       if (this.ctx.appState.accountId) {
-        if (!this.ctx.accountManager.select(this.ctx.appState.accountId)) {
+        if (
+          !(await this.ctx.accountManager.select(this.ctx.appState.accountId))
+        ) {
           this.ctx.appState.setAccountId(null);
         }
       }
@@ -53,7 +55,7 @@ export class Application {
 
               if (result.done) {
                 if (result.command) {
-                  result.command.execute(this.ctx);
+                  await result.command.execute(this.ctx);
                 }
                 this.ctx.activeFlow = null;
               }
@@ -71,7 +73,7 @@ export class Application {
           const menuItem = await this.view.getChoice(items);
 
           if (menuItem) {
-            menuItem.command.execute(this.ctx);
+            await menuItem.command.execute(this.ctx);
           }
         } catch (err) {
           this.handleError(err);
@@ -125,6 +127,7 @@ export class Application {
   async shutdown() {
     await this.ctx.storage.saveAppState(this.ctx.appState);
     await this.view.close();
+    await this.ctx.accountManager.close();
     console.log("Application closed");
   }
 }

@@ -18,6 +18,13 @@ export class BuyItemTaskFlow extends WizardFlow {
         required: true,
         requiredMessage: "Price is required",
       },
+      {
+        key: "quantity",
+        label: "Quantity:",
+        prompt: "Enter quantity:",
+        required: true,
+        requiredMessage: "Quantity is required",
+      },
     ]);
     this.title = "BUY ITEM";
   }
