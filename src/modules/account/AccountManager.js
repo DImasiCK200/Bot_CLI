@@ -127,13 +127,19 @@ export class AccountManager {
   }
 
   async createSession() {
-    const sessionData = await this.loginAsync()
+    const sessionData = await this.loginAsync();
 
     this.setCookies(sessionData.cookies);
     this.setSessionId(sessionData.sessionID);
 
     await this.saveSession(sessionData);
   }
+
+  // async createSession() {
+  //   const sessionData = await this.steamAPI.login();
+
+  //   await this.saveSession(sessionData);
+  // }
 
   async saveSession(sessionData) {
     await this.storage.saveAccountSession(
@@ -164,6 +170,22 @@ export class AccountManager {
     return true;
   }
 
+  // async tryLoadSession() {
+  //   const session = await this.loadSession();
+
+  //   if (!session.createdAt) return false;
+
+  //   const age = Date.now() - session.createdAt;
+
+  //   if (age > MAX_SESSION_AGE) {
+  //     return false;
+  //   }
+
+  //   this.steamAPI.setSessionData(session);
+
+  //   return true;
+  // }
+
   loginAsync() {
     return new Promise((resolve, reject) => {
       this.steamCommunity.login(
@@ -173,7 +195,10 @@ export class AccountManager {
           twoFactorCode: SteamTotp.generateAuthCode(this.sharedSecret),
         },
         (loginError, sessionID, cookies, steamguard) => {
-          if (loginError) return reject(new ValidationError("Login failled, check account data!"));
+          if (loginError)
+            return reject(
+              new ValidationError("Login failled, check account data!"),
+            );
           resolve({ sessionID, cookies, steamguard });
         },
       );
@@ -186,6 +211,12 @@ export class AccountManager {
     const sessionLoaded = await this.tryLoadSession();
     if (!sessionLoaded) await this.createSession();
   }
+
+  // async getSession() {
+  //   this.steamAPI = new steamAPI()
+  //   const sessionLoaded = await this.tryLoadSession();
+  //   if (!sessionLoaded) await this.createSession();
+  // }
 
   getSteamUserAsync(steamID) {
     return new Promise((resolve, reject) => {
@@ -205,4 +236,8 @@ export class AccountManager {
   async close() {
     this.tradeManager.shutdown();
   }
+
+  // async close() {
+  //   this.steamAPI.close();
+  // }
 }
