@@ -58,13 +58,18 @@ export class BlessedView {
   }
 
   showMenu(menu, items, ctx) {
+    const itemsNew = [...items];
     let output = "";
     output += `{bold}${menu.title}{/bold}\n`;
     output += `${menu.getDescription(ctx)}\n`;
 
-    items.forEach((item, i) => {
+    const navItem = itemsNew.shift();
+
+    itemsNew.forEach((item, i) => {
       output += `${i + 1}. ${item.label}\n`;
     });
+
+    output += `0. ${navItem.label}\n`;
 
     this.render(output);
   }
@@ -85,7 +90,7 @@ export class BlessedView {
   async getChoice(items) {
     const value = await this.getInput();
 
-    const index = Number(value) - 1;
+    const index = Number(value);
     if (Number.isNaN(index) || index < 0 || !items[index]) {
       throw new ValidationError("Wrong menu choice");
     }
