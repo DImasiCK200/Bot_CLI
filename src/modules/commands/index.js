@@ -9,6 +9,7 @@ export { UpdateIdentitySecretCommand } from "./appCommands/account/UpdateIdentit
 export { UpdateSharedSecretCommand } from "./appCommands/account/UpdateSharedSecretCommand.js";
 export { UpdatePasswordCommand } from "./appCommands/account/UpdatePasswordCommand.js";
 export { UpdateMarketApiKeyCommand } from "./appCommands/account/UpdateMarketApiKeyCommand.js";
+export { ChooseTaskCommand } from "./appCommands/tasks/ChooseTaskCommand.js";
 
 export { AddAccountFlowCommand } from "./flowCommands/account/AddAccountFlowCommand.js";
 export { RenameAccountFlowCommand } from "./flowCommands/account/RenameAccountFlowCommand.js";
