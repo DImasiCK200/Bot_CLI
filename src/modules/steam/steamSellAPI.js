@@ -3,39 +3,12 @@ import axios from "axios";
 import { community } from "./auth.js";
 
 export class SteamSellAPI {
-  constructor(steamID64, sessionData) {
+  constructor({ community, sessionData }) {
     this.baseURL = "https://steamcommunity.com/market";
     this.steamID64 = steamID64;
 
     // Обработка куки: если массив строк — склеиваем в одну строку
-    let cookiesString;
-    if (Array.isArray(sessionData.cookies)) {
-      cookiesString = sessionData.cookies.join("; ");
-    } else if (typeof sessionData.cookies === "string") {
-      cookiesString = sessionData.cookies;
-    } else {
-      throw new Error(
-        'Cookies must be an array of strings like ["sessionid=...", "steamLoginSecure=..."] or a string',
-      );
-    }
-
-    // Извлекаем sessionID из куки, если не передан явно
-    this.sessionID =
-      sessionData.sessionID || this._extractSessionId(cookiesString);
-
-    // Гарантируем наличие sessionid в куках
-    if (!cookiesString.includes("sessionid=")) {
-      cookiesString += `; sessionid=${this.sessionID}`;
-    }
-
-    // Проверяем наличие steamLoginSecure (критично для market)
-    if (!cookiesString.includes("steamLoginSecure=")) {
-      console.warn(
-        "⚠️ steamLoginSecure отсутствует в куках — sellItem и другие действия могут не работать!",
-      );
-    }
-
-    this.cookiesString = cookiesString;
+    sessionData && this.setSession(sessionData);
 
     this.defaultHeaders = {
       Accept: "application/json, text/javascript, */*; q=0.01",
@@ -80,6 +53,37 @@ export class SteamSellAPI {
     this.createdAt = sessionData.createdAt || new Date().toISOString();
   }
 
+  setSession(sessionData) {
+    let cookiesString;
+    if (Array.isArray(sessionData.cookies)) {
+      cookiesString = sessionData.cookies.join("; ");
+    } else if (typeof sessionData.cookies === "string") {
+      cookiesString = sessionData.cookies;
+    } else {
+      throw new Error(
+        'Cookies must be an array of strings like ["sessionid=...", "steamLoginSecure=..."] or a string',
+      );
+    }
+
+    // Извлекаем sessionID из куки, если не передан явно
+    this.sessionID =
+      sessionData.sessionID || this._extractSessionId(cookiesString);
+
+    // Гарантируем наличие sessionid в куках
+    if (!cookiesString.includes("sessionid=")) {
+      cookiesString += `; sessionid=${this.sessionID}`;
+    }
+
+    // Проверяем наличие steamLoginSecure (критично для market)
+    if (!cookiesString.includes("steamLoginSecure=")) {
+      console.warn(
+        "⚠️ steamLoginSecure отсутствует в куках — sellItem и другие действия могут не работать!",
+      );
+    }
+
+    this.cookiesString = cookiesString;
+  }
+
   // Вспомогательный метод: извлечение sessionid из строки куки
   _extractSessionId(cookiesStr) {
     const match = cookiesStr.match(/sessionid=([^;]+)/);
@@ -106,7 +110,6 @@ export class SteamSellAPI {
     }
     this.cookiesString = newString;
     this.axios.defaults.headers["Cookie"] = this.cookiesString;
-    console.log("✅ Куки обновлены");
   }
 
   priceToInt(priceRub) {

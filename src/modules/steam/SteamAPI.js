@@ -2,6 +2,7 @@ import SteamCommunity from "steamcommunity";
 import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamTotp from "steam-totp";
 // import { SteamSellAPI } from "./steamSellAPI.js";
+import { NotfoundError, ValidationError } from "../errors/index.js";
 
 const isEmpty = (obj) => Object.keys(obj).length === 0;
 
@@ -19,9 +20,7 @@ export class SteamAPI {
     this.identitySecret = identitySecret;
 
     this.steamCommunity = new SteamCommunity();
-    this.tradeManager = new TradeOfferManager({
-      community: this.steamCommunity,
-    });
+    this.tradeManager = null
     // this.steamSellAPI = new SteamSellAPI();
 
     this._session = session;
@@ -34,6 +33,16 @@ export class SteamAPI {
     return steamUser ? steamUser.name : null;
   }
 
+  createTradeManagaer() {
+    this.tradeManager = new TradeOfferManager({
+      community: this.steamCommunity,
+    });
+  }
+
+  closeTradeManager() {
+    this.tradeManager.shutdown()
+  }
+
   setSessionData(session) {
     this.setCookies(session.cookies);
     this.setSessionId(session.sessionId);
@@ -41,21 +50,13 @@ export class SteamAPI {
 
   setCookies(cookies) {
     this.steamCommunity.setCookies(cookies);
-    this.tradeManager.setCookies(cookies);
+    // this.tradeManager.setCookies(cookies);
     // this.steamSellAPI.setCookies(cookies);
   }
 
   setSessionId(sessionId) {
     this.steamCommunity.sessionID = sessionId;
     // this.steamSellAPI.setSessionId(sessionId);
-  }
-
-  async login(session = null) {
-    const sessionData = await this._loginAsync();
-
-    this.setSessionData(sessionData);
-
-    return sessionData;
   }
 
   async initialize(session = null) {
@@ -125,14 +126,12 @@ export class SteamAPI {
    */
   _clearSession() {
     this.steamCommunity = new SteamCommunity();
-    this.tradeManager = new TradeOfferManager({
-      community: this.steamCommunity,
-    });
+    this.tradeManager = null
     // this.steamSellAPI = new SteamSellAPI();
     this._session = null;
   }
 
   async close() {
-    this.tradeManager.shutdown();
+    // this.tradeManager.shutdown();
   }
 }

@@ -1,12 +1,7 @@
 import { Account } from "./Account.js";
 import { NotfoundError, ValidationError } from "../errors/index.js";
 
-import SteamCommunity from "steamcommunity";
-import TradeOfferManager from "steam-tradeoffer-manager";
-import SteamTotp from "steam-totp";
 import { SteamAPI } from "../steam/SteamAPI.js";
-
-const MAX_SESSION_AGE = 1000 * 60 * 60 * 24;
 
 export class AccountManager {
   constructor({ storage }) {
@@ -81,6 +76,7 @@ export class AccountManager {
 
     if (!account) return false;
     this.currentAccount = account;
+    await this.getSteamAPI()
     return true;
   }
 
@@ -142,7 +138,7 @@ export class AccountManager {
 
   async close() {
     this.accounts.forEach((account) => {
-      account.steamAPI && account.steamAPI.tradeManager.shutdown();
+      account.steamAPI && account.steamAPI.close();
     });
   }
 }
