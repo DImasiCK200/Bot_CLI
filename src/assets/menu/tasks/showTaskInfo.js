@@ -7,7 +7,12 @@ export const showTaskInfo = new Menu({
   isDynamic: true,
 
   descriptionFn: (ctx) => {
-    return `Choose task to see details`;
+    const task = ctx.taskManager.currentTask;
+    return task
+      ? Object.keys(task).reduce((sum, key, i) => {
+          return sum + `${key}: ${person[key]}\n`;
+        }, "")
+      : `No task choosen`;
   },
 
   itemsFn: (ctx) => {

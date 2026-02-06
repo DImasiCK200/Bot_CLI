@@ -4,6 +4,7 @@ export class TaskManager extends EventEmitter {
   constructor() {
     super();
     this.tasks = [];
+    this.currentTask = null;
   }
 
   add(task) {
@@ -19,6 +20,17 @@ export class TaskManager extends EventEmitter {
   run(task) {
     this.add(task);
     task.run();
+  }
+
+  choose(taskId) {
+    const task = this.tasks.find((t) => t.id === taskId);
+    this.currentTask = task;
+  }
+
+  pop() {
+    const task = this.currentTask;
+    this.currentTask = null;
+    return task;
   }
 
   getAll() {
