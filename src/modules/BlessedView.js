@@ -10,6 +10,7 @@ export class BlessedView {
 
     // ===== OUTPUT =====
     this.outputBox = blessed.box({
+      parent: this.screen,
       top: 0,
       left: 0,
       width: "100%",
@@ -33,16 +34,39 @@ export class BlessedView {
       keys: true, // ← важно
     });
 
+    this.inputBox.key(["up"], () => {
+      this.outputBox.scroll(-1);
+      this.screen.render();
+    });
+
+    this.inputBox.key(["down"], () => {
+      this.outputBox.scroll(1);
+      this.screen.render();
+    });
+
+    this.outputBox.style = {
+      border: {
+        fg: "#31ad00ff",
+      },
+    };
+
     this.screen.append(this.outputBox);
     this.screen.append(this.inputBox);
-
-    this.inputBox.focus();
 
     this.screen.key(["C-c"], () => {
       this.close();
       process.exit(0);
     });
 
+    this.screen.render();
+  }
+
+  showPage({ title, content }) {
+    let output = `{bold}${title}{/bold}\n\n`;
+
+    output += Array.isArray(content) ? content.join("\n") : content;
+
+    this.outputBox.setContent(output);
     this.screen.render();
   }
 
@@ -59,19 +83,24 @@ export class BlessedView {
 
   showMenu(menu, items, ctx) {
     const itemsNew = [...items];
-    let output = "";
-    output += `{bold}${menu.title}{/bold}\n`;
-    output += `${menu.getDescription(ctx)}\n`;
-
     const navItem = itemsNew.shift();
 
+    const lines = [];
+
+    lines.push(menu.getDescription(ctx));
+    lines.push("");
+
     itemsNew.forEach((item, i) => {
-      output += `${i + 1}. ${item.label}\n`;
+      lines.push(`${i + 1}. ${item.label}`);
     });
 
-    output += `0. ${navItem.label}\n`;
+    lines.push("");
+    lines.push(`0. ${navItem.label}`);
 
-    this.render(output);
+    this.showPage({
+      title: menu.title,
+      content: lines,
+    });
   }
 
   showFlowOutput(flowResult) {
@@ -90,7 +119,7 @@ export class BlessedView {
   async getChoice(items) {
     const value = await this.getInput();
 
-    const index = Number(value);
+    const index = value;
     if (Number.isNaN(index) || index < 0 || !items[index]) {
       throw new ValidationError("Wrong menu choice");
     }

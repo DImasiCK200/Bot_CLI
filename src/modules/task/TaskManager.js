@@ -28,9 +28,7 @@ export class TaskManager extends EventEmitter {
   }
 
   pop() {
-    const task = this.currentTask;
-    this.currentTask = null;
-    return task;
+    return this.currentTask;
   }
 
   getAll() {

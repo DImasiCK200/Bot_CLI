@@ -5,7 +5,7 @@ export class BuyItemTask extends Task {
     super({
       id: crypto.randomUUID(),
       type: "buy-item",
-      title: `Buy: ${itemName} - ${price} RUB`,
+      title: `Buy: ${itemName} - ${price} RUB x${quantity}`,
     });
 
     this.account = account;
@@ -19,7 +19,7 @@ export class BuyItemTask extends Task {
       this.start();
       for (let i = 1; i <= this.quantity; i++) {
         await new Promise((r) => setTimeout(r, 1000));
-        this.setProgress((i / this.quantity) * 100);
+        this.setProgress(Math.floor(i / this.quantity * 100));
       }
 
       this.complete();
