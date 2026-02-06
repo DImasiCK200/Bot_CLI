@@ -4,6 +4,7 @@ import { NotfoundError, ValidationError } from "../errors/index.js";
 import SteamCommunity from "steamcommunity";
 import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamTotp from "steam-totp";
+import { SteamAPI } from "../steam/SteamAPI.js";
 
 const MAX_SESSION_AGE = 1000 * 60 * 60 * 24;
 
@@ -13,10 +14,6 @@ export class AccountManager {
     this.currentAccount = null;
 
     this.storage = storage;
-
-    this.steamCommunity = null;
-    this.sessionData = null;
-    this.tradeManager = null;
   }
 
   get id() {
@@ -84,7 +81,6 @@ export class AccountManager {
 
     if (!account) return false;
     this.currentAccount = account;
-    await this.getSession();
     return true;
   }
 
@@ -113,34 +109,6 @@ export class AccountManager {
     this.save();
   }
 
-  setCookies(cookies) {
-    this.steamCommunity.setCookies(cookies);
-    this.tradeManager.setCookies(cookies);
-  }
-
-  setSessionId(sessionId) {
-    this.steamCommunity.sessionID = sessionId;
-  }
-
-  setSessionData(session) {
-    this.sessionData = session;
-  }
-
-  async createSession() {
-    const sessionData = await this.loginAsync();
-
-    this.setCookies(sessionData.cookies);
-    this.setSessionId(sessionData.sessionID);
-
-    await this.saveSession(sessionData);
-  }
-
-  // async createSession() {
-  //   const sessionData = await this.steamAPI.login();
-
-  //   await this.saveSession(sessionData);
-  // }
-
   async saveSession(sessionData) {
     await this.storage.saveAccountSession(
       this.currentAccount.name,
@@ -149,82 +117,21 @@ export class AccountManager {
   }
 
   async loadSession() {
-    return await this.storage.loadAccountSession(this.currentAccount.name);
+    return await this.storage.loadAccountSession(this.accountName);
   }
 
-  async tryLoadSession() {
-    const session = await this.loadSession();
+  async getSteamAPI() {
+    if (!this.currentAccount.steamAPI) {
+      const steamAPI = new SteamAPI(this.currentAccount);
 
-    if (!session.createdAt) return false;
+      let session = await this.loadSession();
+      const sessionData = await steamAPI.initialize(session);
+      sessionData && (await this.saveSession(sessionData));
 
-    const age = Date.now() - session.createdAt;
-
-    if (age > MAX_SESSION_AGE) {
-      return false;
+      this.currentAccount.steamAPI = steamAPI;
     }
 
-    this.setCookies(session.cookies);
-    this.setSessionId(session.sessionID);
-    this.setSessionData(session);
-
-    return true;
-  }
-
-  // async tryLoadSession() {
-  //   const session = await this.loadSession();
-
-  //   if (!session.createdAt) return false;
-
-  //   const age = Date.now() - session.createdAt;
-
-  //   if (age > MAX_SESSION_AGE) {
-  //     return false;
-  //   }
-
-  //   this.steamAPI.setSessionData(session);
-
-  //   return true;
-  // }
-
-  loginAsync() {
-    return new Promise((resolve, reject) => {
-      this.steamCommunity.login(
-        {
-          accountName: this.accountName,
-          password: this.password,
-          twoFactorCode: SteamTotp.generateAuthCode(this.sharedSecret),
-        },
-        (loginError, sessionID, cookies, steamguard) => {
-          if (loginError)
-            return reject(
-              new ValidationError("Login failled, check account data!"),
-            );
-          resolve({ sessionID, cookies, steamguard });
-        },
-      );
-    });
-  }
-
-  async getSession() {
-    this.steamCommunity = new SteamCommunity();
-    this.tradeManager = new TradeOfferManager();
-    const sessionLoaded = await this.tryLoadSession();
-    if (!sessionLoaded) await this.createSession();
-  }
-
-  // async getSession() {
-  //   this.steamAPI = new steamAPI()
-  //   const sessionLoaded = await this.tryLoadSession();
-  //   if (!sessionLoaded) await this.createSession();
-  // }
-
-  getSteamUserAsync(steamID) {
-    return new Promise((resolve, reject) => {
-      this.steamCommunity.getSteamUser(steamID, (err, steamUser) => {
-        if (err) reject(new Error(err));
-        resolve(steamUser);
-      });
-    });
+    return this.currentAccount.steamAPI;
   }
 
   remove() {
@@ -234,10 +141,8 @@ export class AccountManager {
   }
 
   async close() {
-    this.tradeManager.shutdown();
+    this.accounts.forEach((account) => {
+      account.steamAPI && account.steamAPI.tradeManager.shutdown();
+    });
   }
-
-  // async close() {
-  //   this.steamAPI.close();
-  // }
 }

@@ -16,6 +16,7 @@ export class Account {
     this.sharedSecret = sharedSecret;
     this.identitySecret = identitySecret;
     this.marketApiKey = marketApiKey;
+    this.steamAPI = null
   }
 
   get name() {

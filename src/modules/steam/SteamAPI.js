@@ -1,7 +1,9 @@
 import SteamCommunity from "steamcommunity";
 import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamTotp from "steam-totp";
-import { SteamSellAPI } from "./steamSellAPI.js";
+// import { SteamSellAPI } from "./steamSellAPI.js";
+
+const isEmpty = (obj) => Object.keys(obj).length === 0;
 
 export class SteamAPI {
   constructor({
@@ -16,11 +18,20 @@ export class SteamAPI {
     this.sharedSecret = sharedSecret;
     this.identitySecret = identitySecret;
 
-    this.session = session;
-
     this.steamCommunity = new SteamCommunity();
-    this.tradeManager = new TradeOfferManager();
-    this.steamSellAPI = new SteamSellAPI();
+    this.tradeManager = new TradeOfferManager({
+      community: this.steamCommunity,
+    });
+    // this.steamSellAPI = new SteamSellAPI();
+
+    this._session = session;
+  }
+
+  async getNickname() {
+    const steamUser = await this._getSteamUserAsync(
+      this.steamCommunity.steamID,
+    );
+    return steamUser ? steamUser.name : null;
   }
 
   setSessionData(session) {
@@ -31,15 +42,15 @@ export class SteamAPI {
   setCookies(cookies) {
     this.steamCommunity.setCookies(cookies);
     this.tradeManager.setCookies(cookies);
-    this.steamSellAPI.setCookies(cookies);
+    // this.steamSellAPI.setCookies(cookies);
   }
 
   setSessionId(sessionId) {
     this.steamCommunity.sessionID = sessionId;
-    this.steamSellAPI.setSessionId(sessionId);
+    // this.steamSellAPI.setSessionId(sessionId);
   }
 
-  async login() {
+  async login(session = null) {
     const sessionData = await this._loginAsync();
 
     this.setSessionData(sessionData);
@@ -47,6 +58,27 @@ export class SteamAPI {
     return sessionData;
   }
 
+  async initialize(session = null) {
+    if (isEmpty(session) === false) {
+      this.setSessionData(session);
+      if (await this._isSessionValid()) {
+        return null;
+      }
+      this._clearSession();
+    }
+
+    const sessionData = await this._loginAsync();
+
+    this.setSessionData(sessionData);
+    this.nickname = await this.getNickname();
+
+    return sessionData;
+  }
+
+  /**
+   * Логинит аккаунт в Steam
+   * @returns {Promise<Object|null>} свежую сессию
+   */
   _loginAsync() {
     return new Promise((resolve, reject) => {
       this.steamCommunity.login(
@@ -66,6 +98,18 @@ export class SteamAPI {
     });
   }
 
+  /**Проверяет жива ли сессия
+   * @return {Promise<boolean>}
+   */
+  _isSessionValid() {
+    return new Promise((resolve, reject) => {
+      this.steamCommunity.loggedIn((err, loggedIn) => {
+        if (err) reject(err);
+        resolve(loggedIn);
+      });
+    });
+  }
+
   _getSteamUserAsync(steamID) {
     return new Promise((resolve, reject) => {
       this.steamCommunity.getSteamUser(steamID, (err, steamUser) => {
@@ -73,6 +117,19 @@ export class SteamAPI {
         resolve(steamUser);
       });
     });
+  }
+
+  /**
+   * Внутренний метод для очистки ссесии
+   * @private
+   */
+  _clearSession() {
+    this.steamCommunity = new SteamCommunity();
+    this.tradeManager = new TradeOfferManager({
+      community: this.steamCommunity,
+    });
+    // this.steamSellAPI = new SteamSellAPI();
+    this._session = null;
   }
 
   async close() {

@@ -1,5 +1,6 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
 import { addTaskMenu } from "./addTaskMenu.js";
+import { showTaskInfo } from "./showTaskInfo.js";
 import { PushMenuCommand } from "../../../modules/commands/index.js";
 
 export const taskMenu = new Menu({
@@ -22,5 +23,6 @@ export const taskMenu = new Menu({
 
   itemsFn: (ctx) => [
     new MenuItem("Add task", new PushMenuCommand(addTaskMenu)),
+    new MenuItem("Task details", new PushMenuCommand(showTaskInfo)),
   ],
 });

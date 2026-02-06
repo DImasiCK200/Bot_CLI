@@ -1,29 +1,28 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
-import { PushMenuCommand, DeleteAccountCommand } from "../../../modules/commands/index.js";
+import {
+  PushMenuCommand,
+  DeleteAccountCommand,
+} from "../../../modules/commands/index.js";
 import { selectAccountMenu } from "./selectAccountMenu.js";
 import { settingsAccountMenu } from "./settingsAccountMenu.js";
 
 export const accountMenu = new Menu({
   title: "Account menu",
   descriptionFn: (ctx) =>
-    `Account: ${
-      ctx.accountManager.currentAccount?.accountName ?? "not selected"
-    }`,
+    `Account: ${ctx.accountManager.currentAccount?.accountName ?? "not selected"}`,
   itemsFn: (ctx) => {
     const items = [];
     if (ctx.accountManager.currentAccount) {
       items.push(
-        new MenuItem("Change account", new PushMenuCommand(selectAccountMenu))
+        new MenuItem("Change account", new PushMenuCommand(selectAccountMenu)),
       );
       items.push(
-        new MenuItem("Settings", new PushMenuCommand(settingsAccountMenu))
+        new MenuItem("Settings", new PushMenuCommand(settingsAccountMenu)),
       );
-      items.push(
-        new MenuItem("Delete account", new DeleteAccountCommand())
-      );
+      items.push(new MenuItem("Delete account", new DeleteAccountCommand()));
     } else {
       items.push(
-        new MenuItem("Select account", new PushMenuCommand(selectAccountMenu))
+        new MenuItem("Select account", new PushMenuCommand(selectAccountMenu)),
       );
     }
     return items;

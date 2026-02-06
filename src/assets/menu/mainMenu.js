@@ -9,8 +9,11 @@ export const mainMenu = new Menu({
     `Account: ${
       ctx.accountManager.currentAccount?.accountName ?? "not selected"
     }`,
-  itemsFn: (ctx) => [
-    new MenuItem("Tasks", new PushMenuCommand(taskMenu)),
-    new MenuItem("Account", new PushMenuCommand(accountMenu)),
-  ],
+  itemsFn: (ctx) => {
+    const items = [];
+    items.push(new MenuItem("Account", new PushMenuCommand(accountMenu)));
+    ctx.accountManager.currentAccount &&
+      items.push(new MenuItem("Tasks", new PushMenuCommand(taskMenu)));
+    return items;
+  },
 });

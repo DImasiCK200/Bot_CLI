@@ -3,7 +3,6 @@ import { BuyItemCommand } from "../../../modules/commands/appCommands/tasks/BuyI
 
 export const addTaskMenu = new Menu({
   title: "Add task menu",
-  isDynamic: true,
 
   descriptionFn: (ctx) => {
     return `Choose task to activate`;

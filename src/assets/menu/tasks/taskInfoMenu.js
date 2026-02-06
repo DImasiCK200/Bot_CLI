@@ -3,23 +3,21 @@ import { BuyItemCommand } from "../../../modules/commands/appCommands/tasks/BuyI
 import { PushMenuCommand } from "../../../modules/commands/index.js";
 
 export const showTaskInfo = new Menu({
-  title: "Show task details",
+  title: "Task",
   isDynamic: true,
 
   descriptionFn: (ctx) => {
-    return `Choose task to see details`;
+    return `Task: ID[${}]`;
   },
 
   itemsFn: (ctx) => {
     const items = [];
 
-    const tasks = ctx.taskManager.getAll();
+    const tasks = ctx.taskManager.getALL()
 
-    tasks.forEach((t) => {
-      items.push(
-        new MenuItem(`ID[${t.id}] - ${t.title}`, new PushMenuCommand()),
-      );
-    });
+    tasks.forEach(t => {
+      items.push(new MenuItem(`ID[${t.id}] - ${t.title}`, new PushMenuCommand()))
+    })
 
     return items;
   },
