@@ -81,13 +81,13 @@ export class BlessedView {
     this.screen.render();
   }
 
-  showMenu(menu, items, ctx) {
+  async showMenu(menu, items, ctx) {
     const itemsNew = [...items];
     const navItem = itemsNew.shift();
 
     const lines = [];
-
-    lines.push(menu.getDescription(ctx));
+    const desc = await menu.getDescription(ctx);
+    lines.push(desc);
     lines.push("");
 
     itemsNew.forEach((item, i) => {

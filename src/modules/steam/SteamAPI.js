@@ -20,37 +20,59 @@ export class SteamAPI {
     this.identitySecret = identitySecret;
 
     this.steamCommunity = new SteamCommunity();
-    this.tradeManager = null
+    this.tradeManager = null;
     // this.steamSellAPI = new SteamSellAPI();
 
     this._session = session;
   }
 
-  async getNickname() {
-    const steamUser = await this._getSteamUserAsync(
-      this.steamCommunity.steamID,
-    );
-    return steamUser ? steamUser.name : null;
+  async getSteamUser(steamId = this.steamCommunity.steamID) {
+    const steamUser = await this._getSteamUserAsync(steamId);
+    return steamUser ? steamUser : null;
   }
 
-  createTradeManagaer() {
+  async createTradeManagaer() {
     this.tradeManager = new TradeOfferManager({
       community: this.steamCommunity,
+      domain: "example.com",
+      language: "en",
+    });
+
+    await this._setCookiesTradeManagerAsync(this._session.cookies);
+  }
+
+  _setCookiesTradeManagerAsync(cookies) {
+    return new Promise((resolve, reject) => {
+      this.tradeManager.setCookies(cookies, (err) => {
+        if (err) reject(new Error(err));
+
+        resolve();
+      });
     });
   }
 
   closeTradeManager() {
-    this.tradeManager.shutdown()
+    this.tradeManager.shutdown();
+  }
+
+  async doWithTradeManager(callback) {
+    await this.createTradeManagaer();
+
+    try {
+      return await callback();
+    } finally {
+      this.closeTradeManager();
+    }
   }
 
   setSessionData(session) {
     this.setCookies(session.cookies);
     this.setSessionId(session.sessionId);
+    this._session = session;
   }
 
   setCookies(cookies) {
     this.steamCommunity.setCookies(cookies);
-    // this.tradeManager.setCookies(cookies);
     // this.steamSellAPI.setCookies(cookies);
   }
 
@@ -63,6 +85,7 @@ export class SteamAPI {
     if (isEmpty(session) === false) {
       this.setSessionData(session);
       if (await this._isSessionValid()) {
+        this.steamUser = await this.getSteamUser();
         return null;
       }
       this._clearSession();
@@ -71,7 +94,7 @@ export class SteamAPI {
     const sessionData = await this._loginAsync();
 
     this.setSessionData(sessionData);
-    this.nickname = await this.getNickname();
+    this.steamUser = await this.getSteamUser();
 
     return sessionData;
   }
@@ -106,6 +129,7 @@ export class SteamAPI {
     return new Promise((resolve, reject) => {
       this.steamCommunity.loggedIn((err, loggedIn) => {
         if (err) reject(err);
+
         resolve(loggedIn);
       });
     });
@@ -115,9 +139,73 @@ export class SteamAPI {
     return new Promise((resolve, reject) => {
       this.steamCommunity.getSteamUser(steamID, (err, steamUser) => {
         if (err) reject(new Error(err));
+
         resolve(steamUser);
       });
     });
+  }
+
+  _getInventoryAsync(appid = 730, contextid = 2, tradableOnly = true) {
+    return new Promise((resolve, reject) => {
+      this.tradeManager.getInventoryContents(
+        appid,
+        contextid,
+        tradableOnly,
+        (err, inventory, currencies) => {
+          if (err) reject(new Error(err));
+
+          resolve({ inventory, currencies });
+        },
+      );
+    });
+  }
+
+  async getInventory(appid = 730, contextid = 2, tradableOnly = true) {
+    return await this.doWithTradeManager(() =>
+      this._getInventoryAsync(appid, contextid, tradableOnly),
+    );
+  }
+
+  _getOffersAsync(filter = 0) {
+    return new Promise((resolve, reject) => {
+      this.tradeManager.getOffers(
+        TradeOfferManager.EOfferFilter[filter],
+        function (err, sent, received) {
+          if (err) reject(new Error(err));
+
+          resolve({ sent, received });
+        },
+      );
+    });
+  }
+
+  _acceptOfferAsync(offer) {
+    return new Promise((resolve, reject) => {
+      offer.accept((err, status) => {
+        if (err) reject(new Error(err));
+
+        resolve(status);
+      });
+    });
+  }
+
+  async acceptOffer(offer) {
+    return await this.doWithTradeManager(() => this._acceptOfferAsync(offer));
+  }
+
+  async acceptGoodOffers(offers) {
+    let recievedItems = [];
+
+    for (const offer of offers) {
+      if (!offer.itemsToGive.length && offer.itemsToReceive.length) {
+        if (offer.state === 2) {
+          await this._acceptOfferAsync(offer);
+          recievedItems.concat(offer.itemsToReceive);
+        }
+      }
+    }
+
+    return recievedItems;
   }
 
   /**
@@ -126,7 +214,7 @@ export class SteamAPI {
    */
   _clearSession() {
     this.steamCommunity = new SteamCommunity();
-    this.tradeManager = null
+    this.tradeManager = null;
     // this.steamSellAPI = new SteamSellAPI();
     this._session = null;
   }

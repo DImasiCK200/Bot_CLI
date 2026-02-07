@@ -67,8 +67,8 @@ export class Application {
           //Menu
           const menuManager = this.ctx.menuManager;
           const menu = menuManager.current;
-          const items = menuManager.getItems(this.ctx);
-          this.view.showMenu(menu, items, this.ctx);
+          const items = await menuManager.getItems(this.ctx);
+          await this.view.showMenu(menu, items, this.ctx);
 
           const menuItem = await this.view.getChoice(items);
 
@@ -86,18 +86,18 @@ export class Application {
   }
 
   setupSubscriptions() {
-    this.ctx.taskManager.on("update", () => {
-      this.refreshUI();
+    this.ctx.taskManager.on("update", async () => {
+      await this.refreshUI();
     });
   }
 
-  refreshUI() {
+  async refreshUI() {
     if (this.ctx.activeFlow) return;
 
     const menu = this.ctx.menuManager.current;
     if (menu?.isDynamic) {
-      const items = this.ctx.menuManager.getItems(this.ctx);
-      this.view.showMenu(menu, items, this.ctx);
+      const items = await this.ctx.menuManager.getItems(this.ctx);
+      await this.view.showMenu(menu, items, this.ctx);
     }
   }
 

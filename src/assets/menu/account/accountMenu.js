@@ -5,6 +5,7 @@ import {
 } from "../../../modules/commands/index.js";
 import { selectAccountMenu } from "./selectAccountMenu.js";
 import { settingsAccountMenu } from "./settingsAccountMenu.js";
+import { inventoryMenu } from "./inventoryMenu.js";
 
 export const accountMenu = new Menu({
   title: "Account menu",
@@ -13,11 +14,12 @@ export const accountMenu = new Menu({
   itemsFn: (ctx) => {
     const items = [];
     if (ctx.accountManager.currentAccount) {
-      items.push(
-        new MenuItem("Change account", new PushMenuCommand(selectAccountMenu)),
-      );
+      items.push(new MenuItem("Inventory", new PushMenuCommand(inventoryMenu)));
       items.push(
         new MenuItem("Settings", new PushMenuCommand(settingsAccountMenu)),
+      );
+      items.push(
+        new MenuItem("Change account", new PushMenuCommand(selectAccountMenu)),
       );
       items.push(new MenuItem("Delete account", new DeleteAccountCommand()));
     } else {
