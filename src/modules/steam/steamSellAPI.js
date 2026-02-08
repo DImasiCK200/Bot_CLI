@@ -1,23 +1,64 @@
-import { log } from "console";
 import axios from "axios";
-import { community } from "./auth.js";
 
 export class SteamSellAPI {
-  constructor({ community, sessionData }) {
+  constructor({ community = null, sessionData = null }) {
     this.baseURL = "https://steamcommunity.com/market";
-    this.steamID64 = steamID64;
 
-    // Обработка куки: если массив строк — склеиваем в одну строку
-    sessionData && this.setSession(sessionData);
+    if (community) {
+      setSteamIdByCommunity(community);
+    }
+
+    if (sessionData) {
+      this.initialize(sessionData);
+    }
+  }
+
+  setSteamIdByCommunity(steamcommunity) {
+    this.steamID64 = steamcommunity.steamID.toString();
+  }
+
+  setSession(sessionData) {
+    let cookiesString;
+
+    if (Array.isArray(sessionData.cookies)) {
+      cookiesString = sessionData.cookies.join("; ");
+    } else if (typeof sessionData.cookies === "string") {
+      cookiesString = sessionData.cookies;
+    } else {
+      throw new Error(
+        'Cookies must be an array of strings like ["sessionid=...", "steamLoginSecure=..."] or a string',
+      );
+    }
+
+    // Извлекаем sessionID из куки, если не передан явно
+    this.sessionID =
+      sessionData.sessionID || this._extractSessionId(cookiesString);
+
+    // Гарантируем наличие sessionid в куках
+    if (!cookiesString.includes("sessionid=")) {
+      cookiesString += `; sessionid=${this.sessionID}`;
+    }
+
+    // Проверяем наличие steamLoginSecure (критично для market)
+    if (!cookiesString.includes("steamLoginSecure=")) {
+      console.warn(
+        "⚠️ steamLoginSecure отсутствует в куках — sellItem и другие действия могут не работать!",
+      );
+    }
+
+    this.cookiesString = cookiesString;
+  }
+
+  initialize(sessionData) {
+    this.setSession(sessionData);
 
     this.defaultHeaders = {
       Accept: "application/json, text/javascript, */*; q=0.01",
       "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-      Referer: `https://steamcommunity.com/profiles/${steamID64}/inventory/`,
+      Referer: `https://steamcommunity.com/profiles/${this.steamID64}/inventory/`,
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
       Cookie: this.cookiesString,
-      // Нет лишних: Origin, X-Requested-With — они часто вызывают детект
     };
 
     this.axios = axios.create({
@@ -49,42 +90,8 @@ export class SteamSellAPI {
       ],
       validateStatus: (status) => status < 500,
     });
-
-    this.createdAt = sessionData.createdAt || new Date().toISOString();
   }
 
-  setSession(sessionData) {
-    let cookiesString;
-    if (Array.isArray(sessionData.cookies)) {
-      cookiesString = sessionData.cookies.join("; ");
-    } else if (typeof sessionData.cookies === "string") {
-      cookiesString = sessionData.cookies;
-    } else {
-      throw new Error(
-        'Cookies must be an array of strings like ["sessionid=...", "steamLoginSecure=..."] or a string',
-      );
-    }
-
-    // Извлекаем sessionID из куки, если не передан явно
-    this.sessionID =
-      sessionData.sessionID || this._extractSessionId(cookiesString);
-
-    // Гарантируем наличие sessionid в куках
-    if (!cookiesString.includes("sessionid=")) {
-      cookiesString += `; sessionid=${this.sessionID}`;
-    }
-
-    // Проверяем наличие steamLoginSecure (критично для market)
-    if (!cookiesString.includes("steamLoginSecure=")) {
-      console.warn(
-        "⚠️ steamLoginSecure отсутствует в куках — sellItem и другие действия могут не работать!",
-      );
-    }
-
-    this.cookiesString = cookiesString;
-  }
-
-  // Вспомогательный метод: извлечение sessionid из строки куки
   _extractSessionId(cookiesStr) {
     const match = cookiesStr.match(/sessionid=([^;]+)/);
     if (!match) {
@@ -93,23 +100,6 @@ export class SteamSellAPI {
       );
     }
     return match[1];
-  }
-
-  updateCookies(newCookies) {
-    let newString;
-    if (Array.isArray(newCookies)) {
-      newString = newCookies.join("; ");
-    } else if (typeof newCookies === "string") {
-      newString = newCookies;
-    } else {
-      throw new Error("New cookies must be array of strings or string");
-    }
-    this.sessionID = this._extractSessionId(newString);
-    if (!newString.includes("sessionid=")) {
-      newString += `; sessionid=${this.sessionID}`;
-    }
-    this.cookiesString = newString;
-    this.axios.defaults.headers["Cookie"] = this.cookiesString;
   }
 
   priceToInt(priceRub) {
@@ -214,10 +204,6 @@ export class SteamSellAPI {
       return { success: false, error: error.message };
     }
   }
-
-  // ──────────────────────────────────────────────
-  // Методы (расширенные с правильными заголовками)
-  // ──────────────────────────────────────────────
 
   async sellItem(assetid, priceRub, contextid = 2, appid = 730) {
     const price = this.priceToInt(priceRub);
@@ -376,27 +362,3 @@ export class SteamSellAPI {
     return { success: false, data: lastResult, attempts };
   }
 }
-
-const sessiong = {
-  sessionid: "ffe509f3fdb9b7b8f3058a93",
-  cookies: [
-    "sessionid=ffe509f3fdb9b7b8f3058a93",
-    "steamLoginSecure=76561199835837230%7C%7CeyAidHlwIjogIkpXVCIsICJhbGciOiAiRWREU0EiIH0.eyAiaXNzIjogInI6MDAxNV8yNzg3M0Q0NF8xMTA0QiIsICJzdWIiOiAiNzY1NjExOTk4MzU4MzcyMzAiLCAiYXVkIjogWyAid2ViOmNvbW11bml0eSIgXSwgImV4cCI6IDE3NjgxNDA0NDUsICJuYmYiOiAxNzU5NDEyMzc0LCAiaWF0IjogMTc2ODA1MjM3NCwgImp0aSI6ICIwMDAzXzI3ODczRDQ1XzA0RDQ3IiwgIm9hdCI6IDE3NjgwNTIzNzQsICJydF9leHAiOiAxNzg2MzE3NTY4LCAicGVyIjogMCwgImlwX3N1YmplY3QiOiAiMTA0LjI4LjI0NC43NiIsICJpcF9jb25maXJtZXIiOiAiMTA0LjI4LjI0NC43NiIgfQ.gNSXO5oQidikykwXzlprjRlzkhM0rzngG1BjlQfnkqWklS7XDqvnHhdAHzR-3Ktiz8EyH3phltE1RvzTWI5vCg",
-  ],
-};
-
-(async () => {
-  community.setCookies(sessiong.cookies);
-  const market = new SteamMarketAPI(community.steamID.toString(), sessiong);
-  const result = await market.createBuyOrderWithRetry(
-    "Fracture Case",
-    10, // 10.00 ₽
-    1, // количество
-  );
-
-  if (result.success) {
-    console.log("Успех! Ордер создан после", result.attempts, "попыток");
-  } else {
-    console.log("Не удалось:", result.data);
-  }
-})();
