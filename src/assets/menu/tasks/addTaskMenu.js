@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
-import { BuyItemCommand } from "../../../modules/commands/appCommands/tasks/BuyItemCommand.js";
+import { BuyItemCommand } from "../../../modules/commands/index.js";
 
 export const addTaskMenu = new Menu({
   title: "Add task menu",

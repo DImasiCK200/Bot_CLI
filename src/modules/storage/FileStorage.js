@@ -20,8 +20,8 @@ export class FileStorage extends Storage {
   async ensureDir() {
     return Promise.all(
       this.subDirs.map((dir) =>
-        fs.mkdir(path.join(this.baseDir, dir), { recursive: true })
-      )
+        fs.mkdir(path.join(this.baseDir, dir), { recursive: true }),
+      ),
     );
   }
 
@@ -66,7 +66,9 @@ export class FileStorage extends Storage {
 
   // Methods for Account sessions
   async loadAccountSession(accountName) {
-    return await this.readJson(path.join("sessions", `session_${accountName}.json`));
+    return await this.readJson(
+      path.join("sessions", `session_${accountName}.json`),
+    );
   }
 
   async saveAccountSession(accountName, session) {
@@ -77,7 +79,7 @@ export class FileStorage extends Storage {
 
     await this.writeJson(
       path.join("sessions", `session_${accountName}.json`),
-      toSave
+      toSave,
     );
   }
 

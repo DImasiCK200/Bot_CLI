@@ -2,7 +2,7 @@ import { Menu, MenuItem } from "../../../modules/menu/index.js";
 import { ChooseTaskCommand } from "../../../modules/commands/index.js";
 import { TaskPresenter } from "../../../modules/presenters/TaskPresenter.js";
 
-export const showTaskInfo = new Menu({
+export const showTaskInfoMenu = new Menu({
   title: "Task details:",
   isDynamic: true,
 

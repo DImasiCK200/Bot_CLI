@@ -1,5 +1,5 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { BuyItemFlowCommand } from "../../commands/flowCommands/task/BuyItemFlowCommand.js";
+import { BuyItemFlowCommand } from "../../commands/index.js";
 
 export class BuyItemTaskFlow extends WizardFlow {
   constructor() {
