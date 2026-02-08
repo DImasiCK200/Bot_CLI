@@ -2,62 +2,60 @@ import { AppState } from "./AppState.js";
 import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
 
 export class Application {
-  constructor(ctx, view) {
-    this.ctx = ctx;
-    this.view = view;
+  constructor() {
   }
 
-  async init() {
+  async init(ctx, view) {
     try {
-      await this.ctx.storage.ensureDir();
+      await ctx.storage.ensureDir();
 
-      const state = await this.ctx.storage.loadAppState();
-      this.ctx.setAppState(new AppState(state));
+      const state = await ctx.storage.loadAppState();
+      ctx.setAppState(new AppState(state));
 
-      await this.ctx.accountManager.load();
+      await ctx.accountManager.load();
 
-      if (this.ctx.appState.accountId) {
+      if (ctx.appState.accountId) {
         if (
-          !(await this.ctx.accountManager.select(this.ctx.appState.accountId))
+          !(await ctx.accountManager.select(ctx.appState.accountId))
         ) {
-          this.ctx.appState.setAccountId(null);
+          ctx.appState.setAccountId(null);
         }
       }
 
-      this.setupSubscriptions();
+      this.setupSubscriptions(ctx, view);
     } catch (err) {
       this.handleError(err);
-      await this.view.getEnter();
+      await view.getEnter();
     }
   }
 
-  async run() {
+  async run(ctx, view) {
     try {
-      await this.init();
+      await this.init(ctx, view);
 
-      while (this.ctx.isRunning) {
+      while (ctx.isRunning) {
         try {
           // Flow
-          if (this.ctx.activeFlow && !this.ctx.activeFlow.started) {
-            const result = this.ctx.activeFlow.start();
-            this.ctx.activeFlow.started = true;
-            this.view.showFlowOutput(result);
+          if (ctx.activeFlow && !ctx.activeFlow.started) {
+            const result = ctx.activeFlow.start();
+            ctx.activeFlow.started = true;
+            view.showFlowOutput(result);
           }
 
-          if (this.ctx.activeFlow) {
-            const input = await this.view.getInput();
-            const result = this.ctx.activeFlow.handleInput(input);
+          if (ctx.activeFlow) {
+            const input = await view.getInput();
+            const result = ctx.activeFlow.handleInput(input);
 
             if (result) {
               if (result.message) {
-                this.view.showFlowOutput(result);
+                view.showFlowOutput(result);
               }
 
               if (result.done) {
                 if (result.command) {
-                  await result.command.execute(this.ctx);
+                  await result.command.execute(ctx);
                 }
-                this.ctx.activeFlow = null;
+                ctx.activeFlow = null;
               }
             }
 
@@ -65,69 +63,68 @@ export class Application {
           }
 
           //Menu
-          const menuManager = this.ctx.menuManager;
+          const menuManager = ctx.menuManager;
           const menu = menuManager.current;
-          const items = await menuManager.getItems(this.ctx);
-          await this.view.showMenu(menu, items, this.ctx);
+          const items = await menuManager.getItems(ctx);
+          await view.showMenu(menu, items, ctx);
 
-          const menuItem = await this.view.getChoice(items);
+          const menuItem = await view.getChoice(items);
 
           if (menuItem) {
-            await menuItem.command.execute(this.ctx);
+            await menuItem.command.execute(ctx);
           }
         } catch (err) {
-          this.handleError(err);
-          await this.view.getEnter();
+          this.handleError(err, ctx, view);
+          await view.getEnter();
         }
       }
     } finally {
-      await this.shutdown();
+      await this.shutdown(ctx, view);
     }
   }
 
-  setupSubscriptions() {
-    this.ctx.taskManager.on("update", async () => {
-      await this.refreshUI();
+  setupSubscriptions(ctx, view) {
+    ctx.taskManager.on("update", async () => {
+      await this.refreshUI(ctx, view);
     });
   }
 
-  async refreshUI() {
-    if (this.ctx.activeFlow) return;
+  async refreshUI(ctx, view) {
+    if (ctx.activeFlow) return;
 
-    const menu = this.ctx.menuManager.current;
+    const menu = ctx.menuManager.current;
     if (menu?.isDynamic) {
-      const items = await this.ctx.menuManager.getItems(this.ctx);
-      await this.view.showMenu(menu, items, this.ctx);
+      const items = await ctx.menuManager.getItems(ctx);
+      await view.showMenu(menu, items, ctx);
     }
   }
 
-  handleError(err) {
+  handleError(err, ctx, view) {
     if (err instanceof FatalError) {
-      this.view.showError(err);
-      this.ctx.isRunning = false;
+      view.showError(err);
+      ctx.isRunning = false;
       return;
     }
 
     if (err instanceof ValidationError) {
-      this.view.showError(err);
+      view.showError(err);
       return;
     }
 
     if (err instanceof NotfoundError) {
-      this.view.showError(err);
-      this.ctx.setAppState();
+      view.showError(err);
+      ctx.setAppState();
       return;
     }
 
-    this.view.showError(new Error("Unexpected error"));
-    this.ctx.isRunning = false;
+    view.showError(new Error("Unexpected error"));
+    ctx.isRunning = false;
     console.error(err);
   }
 
-  async shutdown() {
-    await this.ctx.storage.saveAppState(this.ctx.appState);
-    await this.view.close();
-    await this.ctx.accountManager.close();
-    console.log("Application closed");
+  async shutdown(ctx, view) {
+    await ctx.storage.saveAppState(ctx.appState);
+    await view.close();
+    await ctx.accountManager.close();
   }
 }
