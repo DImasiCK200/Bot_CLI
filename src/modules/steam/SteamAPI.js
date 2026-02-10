@@ -21,7 +21,7 @@ export class SteamAPI {
 
     this.steamCommunity = new SteamCommunity();
     this.tradeManager = null;
-    this.steamSellAPI = new SteamSellAPI({});
+    this.steamSellAPI = new SteamSellAPI();
 
     this._session = session;
   }
@@ -181,7 +181,6 @@ export class SteamAPI {
     if (isEmpty(session) === false) {
       this.setSessionData(session);
       if (await this._isSessionValid()) {
-        this.steamUser = await this.getSteamUser();
         return null;
       }
       this._clearSession();
@@ -231,7 +230,7 @@ export class SteamAPI {
     return sessionData;
   }
 
-  // async close() {
+  async close() {
   //  this.tradeManager.shutdown();
-  // }
+  }
 }
