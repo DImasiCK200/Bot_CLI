@@ -52,7 +52,8 @@ export class FileStorage extends Storage {
   }
 
   async saveAccounts(accounts) {
-    await this.writeJson(this.accountFile, accounts);
+    const toSave = accounts.map(({ steamAPI, ...rest }) => rest);
+    await this.writeJson(this.accountFile, toSave);
   }
 
   // Methods for AppState

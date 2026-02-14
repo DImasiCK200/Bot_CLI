@@ -1,20 +1,16 @@
 import axios from "axios";
 
 export class SteamSellAPI {
-  constructor({ community = null, sessionData = null }) {
+  constructor(community = null) {
     this.baseURL = "https://steamcommunity.com/market";
 
     if (community) {
-      setSteamIdByCommunity(community);
-    }
-
-    if (sessionData) {
-      this.initialize(sessionData);
+      this.setSteamIdByCommunity(community);
     }
   }
 
-  setSteamIdByCommunity(steamcommunity) {
-    this.steamID64 = steamcommunity.steamID.toString();
+  setSteamIdByCommunity(community) {
+    this.steamID64 = community.steamID.toString();
   }
 
   setSession(sessionData) {
@@ -236,7 +232,7 @@ export class SteamSellAPI {
       additionalHeaders: {
         Referer: `https://steamcommunity.com/market/listings/${appid}/${encodeURIComponent(
           marketHashName,
-        )}`, // Специфический для buy
+        )}`,
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8", // Только для этого метода
       },
       params: {
@@ -278,7 +274,7 @@ export class SteamSellAPI {
       additionalHeaders: {
         Referer: `https://steamcommunity.com/market/listings/${appid}/${encodeURIComponent(
           marketHashName,
-        )}`, // Лучше для history
+        )}`,
       },
       params: {
         appid: appid.toString(),

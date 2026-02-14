@@ -21,7 +21,7 @@ export class SteamAPI {
 
     this.steamCommunity = new SteamCommunity();
     this.tradeManager = null;
-    this.steamSellAPI = new SteamSellAPI({});
+    this.steamSellAPI = new SteamSellAPI();
 
     this._session = session;
   }
@@ -87,6 +87,26 @@ export class SteamAPI {
     });
   }
 
+  _getConfirmationsAsync(unixTime, key) {
+    return new Promise((resolve, reject) => {
+      this.steamCommunity.getConfirmations(unixTime, key, (err, conf) => {
+        if (err) reject(err);
+
+        resolve(conf);
+      });
+    });
+  }
+
+  _getTimeOffsetAsync() {
+    return new Promise((resolve, reject) => {
+      SteamTotp.getTimeOffset((err, offset) => {
+        if (err) reject(err);
+
+        resolve(offset);
+      });
+    });
+  }
+
   _getSteamUserAsync(steamID) {
     return new Promise((resolve, reject) => {
       this.steamCommunity.getSteamUser(steamID, (err, steamUser) => {
@@ -145,6 +165,55 @@ export class SteamAPI {
     this._session = null;
   }
 
+  // Поправить
+  async confirmWithRetry(conf, identitySecret) {
+    try {
+      await new Promise((resolve, reject) => {
+        let time = SteamTotp.time();
+        if (time === previousTime) {
+          time++;
+        }
+
+        previousTime = time;
+
+        const key = SteamTotp.getConfirmationKey(identitySecret, time, "allow");
+
+        conf.respond(time, key, true, (err) => {
+          err ? reject(err) : resolve();
+        });
+      });
+
+      console.log(`✅ Успешно подтверждено: ${conf.id}`);
+    } catch (err) {
+      console.log(`❌ Ошибка подтверждения ${conf.id}:`, err.message || err);
+    }
+  }
+
+  // Поправить
+  async fetchConfirmations(account) {
+    try {
+      console.log("🔍 Получение подтверждений...");
+      const offset = await this._getTimeOffsetAsync();
+      const unixTime = SteamTotp.time(offset);
+      const key = SteamTotp.getConfirmationKey(
+        account.identitySecret,
+        unixTime,
+        "conf",
+      );
+
+      const confirmations = await this._getConfirmationsAsync(unixTime, key);
+
+      if (!confirmations.length) {
+        console.log("📭 Нет подтверждений.");
+        return;
+      }
+
+      await this.promptConfirmations(confirmations, account.identitySecret);
+    } catch (err) {
+      console.log("Ошибка получения подтверждений:", err);
+    }
+  }
+
   async getSteamUser(steamId = this.steamCommunity.steamID) {
     const steamUser = await this._getSteamUserAsync(steamId);
 
@@ -181,7 +250,6 @@ export class SteamAPI {
     if (isEmpty(session) === false) {
       this.setSessionData(session);
       if (await this._isSessionValid()) {
-        this.steamUser = await this.getSteamUser();
         return null;
       }
       this._clearSession();
@@ -231,7 +299,7 @@ export class SteamAPI {
     return sessionData;
   }
 
-  // async close() {
-  //  this.tradeManager.shutdown();
-  // }
+  async close() {
+    //  this.tradeManager.shutdown();
+  }
 }
