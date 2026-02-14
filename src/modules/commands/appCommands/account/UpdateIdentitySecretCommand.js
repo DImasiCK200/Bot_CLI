@@ -3,6 +3,8 @@ import { Command } from "../../Command.js";
 
 export class UpdateIdentitySecretCommand extends Command {
   execute(ctx) {
-    ctx.activeFlow = new UpdateIdentitySecretFlow();
+    ctx.activeFlow = new UpdateIdentitySecretFlow((ctx, data) =>
+      ctx.accountManager.updateIdentitySecret(data.identitySecret),
+    );
   }
 }

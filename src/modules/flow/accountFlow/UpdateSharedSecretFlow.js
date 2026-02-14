@@ -2,16 +2,19 @@ import { WizardFlow } from "../WizardFlow.js";
 import { UpdateSharedSecretFlowCommand } from "../../commands/index.js";
 
 export class UpdateSharedSecretFlow extends WizardFlow {
-  constructor() {
-    super([
-      {
-        key: "sharedSecret",
-        label: "SharedSecret",
-        prompt: `Enter SharedSecret from mafile:`,
-        required: true,
-        requiredMessage: `SharedSecret is required`,
-      },
-    ]);
+  constructor(callback) {
+    super(
+      [
+        {
+          key: "sharedSecret",
+          label: "SharedSecret",
+          prompt: `Enter SharedSecret from mafile:`,
+          required: true,
+          requiredMessage: `SharedSecret is required`,
+        },
+      ],
+      callback,
+    );
     this.title = "UPDATE SHARED SECRET";
   }
 
@@ -19,7 +22,7 @@ export class UpdateSharedSecretFlow extends WizardFlow {
     return this.newResult(
       "SharedSecret updated succesfully!",
       true,
-      new UpdateSharedSecretFlowCommand(this.data),
+      this.callback,
     );
   }
 }

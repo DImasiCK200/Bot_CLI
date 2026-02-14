@@ -3,6 +3,8 @@ import { Command } from "../../Command.js";
 
 export class UpdateSharedSecretCommand extends Command {
   execute(ctx) {
-    ctx.activeFlow = new UpdateSharedSecretFlow();
+    ctx.activeFlow = new UpdateSharedSecretFlow((ctx, data) =>
+      ctx.accountManager.updateSharedSecret(data.sharedSecret),
+    );
   }
 }

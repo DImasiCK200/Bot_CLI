@@ -3,6 +3,8 @@ import { Command } from "../../Command.js";
 
 export class UpdateMarketApiKeyCommand extends Command {
   execute(ctx) {
-    ctx.activeFlow = new UpdateMarketApiKeyFlow();
+    ctx.activeFlow = new UpdateMarketApiKeyFlow((ctx, data) =>
+      ctx.accountManager.updateMarketApiKey(data.marketApiKey),
+    );
   }
 }
