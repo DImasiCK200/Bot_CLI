@@ -2,7 +2,7 @@ import { WizardFlow } from "../WizardFlow.js";
 import { AddAccountFlowCommand } from "../../commands/index.js";
 
 export class AddAccountFlow extends WizardFlow {
-  constructor() {
+  constructor(callback) {
     super([
       {
         key: "accountName",
@@ -41,13 +41,10 @@ export class AddAccountFlow extends WizardFlow {
       },
     ]);
     this.title = "ADD ACCOUNT";
+    this.callback = callback;
   }
 
   finish() {
-    return this.newResult(
-      "Account added",
-      true,
-      new AddAccountFlowCommand(this.data)
-    );
+    return this.newResult("Account added", true, this.callback);
   }
 }

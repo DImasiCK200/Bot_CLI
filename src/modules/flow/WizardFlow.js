@@ -1,9 +1,10 @@
 import { Flow } from "./Flow.js";
 
 export class WizardFlow extends Flow {
-  constructor(steps) {
+  constructor(steps, callback) {
     super();
     this.steps = steps;
+    this.callback = callback;
     this.commands = {
       "/cancel": this.cancel.bind(this),
       "/back": this.back.bind(this),

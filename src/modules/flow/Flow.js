@@ -12,6 +12,7 @@ export class Flow {
     return {
       title: this.title,
       description: this.description,
+      data: this.data,
       message,
       done,
       command,

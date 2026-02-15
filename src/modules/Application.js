@@ -54,8 +54,8 @@ export class Application {
               }
 
               if (result.done) {
-                if (result.command) {
-                  await result.command.execute(this.ctx);
+                if (result.command && result.data) {
+                  await result.command(this.ctx, result.data);
                 }
                 this.ctx.activeFlow = null;
               }
@@ -64,7 +64,7 @@ export class Application {
             continue;
           }
 
-          //Menu
+          // Menu
           const menuManager = this.ctx.menuManager;
           const menu = menuManager.current;
           const items = await menuManager.getItems(this.ctx);

@@ -16,5 +16,8 @@
     "steam-totp": "^2.1.2",
     "steam-tradeoffer-manager": "^2.12.2",
     "steamcommunity": "^3.48.8"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0"
   }
 }
