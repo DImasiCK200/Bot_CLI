@@ -19,7 +19,9 @@ export class TaskManager extends EventEmitter {
 
   run(task) {
     this.add(task);
-    task.run();
+    task.run().catch((err) => {
+      throw new Error(`Task ${task.id} failed: ${err.message}`);
+    });
   }
 
   choose(taskId) {
@@ -29,6 +31,11 @@ export class TaskManager extends EventEmitter {
 
   pop() {
     return this.currentTask;
+  }
+
+  cancel(taskId) {
+    const task = this.tasks.find((t) => t.id === taskId);
+    task.cancel()
   }
 
   getAll() {

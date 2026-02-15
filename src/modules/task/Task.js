@@ -1,9 +1,9 @@
 import EventEmitter from "events";
 
 export class Task extends EventEmitter {
-  constructor({ id, type, title }) {
+  constructor({ type, title }) {
     super();
-    this.id = id;
+    this.id = crypto.randomUUID();
     this.type = type;
     this.title = title;
 
@@ -12,9 +12,21 @@ export class Task extends EventEmitter {
     this.error = null;
     this.startedAt = null;
     this.finishedAt = null;
+
+    this.controller = new AbortController();
+  }
+
+  get signal() {
+    return this.controller.signal;
+  }
+
+  isCancelled() {
+    return this.controller.signal.aborted;
   }
 
   start() {
+    if (this.status !== "pending") return;
+
     this.status = "running";
     this.startedAt = new Date();
     this.emit("update");
@@ -26,6 +38,8 @@ export class Task extends EventEmitter {
   }
 
   complete() {
+    if (this.status !== "running") return;
+
     this.status = "done";
     this.progress = 100;
     this.finishedAt = new Date();
@@ -33,6 +47,8 @@ export class Task extends EventEmitter {
   }
 
   fail(err) {
+    if (this.status !== "running") return;
+
     this.status = "error";
     this.error = err;
     this.finishedAt = new Date();
@@ -40,8 +56,22 @@ export class Task extends EventEmitter {
   }
 
   cancel() {
+    if (this.status !== "running") return;
+
+    this.controller.abort();
     this.status = "cancelled";
     this.finishedAt = new Date();
     this.emit("update");
+  }
+
+  async runWithCancel(promise) {
+    return Promise.race(
+      promise,
+      new Promise((_, reject) => {
+        this.signal.addEventListener("abort", () =>
+          reject(new Error("Cancelled")),
+        );
+      }),
+    );
   }
 }

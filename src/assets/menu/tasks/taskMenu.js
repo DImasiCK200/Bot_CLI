@@ -23,6 +23,7 @@ export const taskMenu = new Menu({
 
   itemsFn: (ctx) => [
     new MenuItem("Add task", new PushMenuCommand(addTaskMenu)),
-    new MenuItem("Task details", new PushMenuCommand(showTaskInfo)),
+    new MenuItem("Cancel task", new PushMenuCommand(cancelTaskMenu)),
+    new MenuItem("Task details", new PushMenuCommand(showTaskInfoMenu)),
   ],
 });
