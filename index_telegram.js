@@ -1,24 +1,11 @@
-// import "dotenv/config";
-// import { Bot, GrammyError, HttpError, InlineKeyboard, session } from "grammy";
-// import { PsqlAdapter } from "@grammyjs/storage-psql";
+import "dotenv/config";
+import { Bot, GrammyError, HttpError, InlineKeyboard, session } from "grammy";
+import { PsqlAdapter } from "@grammyjs/storage-psql";
 
-// import { Application } from "./src/modules/Application.js";
-// import { Context } from "./src/modules/Context.js";
-// import { MenuManager } from "./src/modules/menu/index.js";
-// import { FileStorage } from "./src/modules/storage/FileStorage.js";
-// import { mainMenu } from "./src/assets/menu/mainMenu.js";
-
-// const menuManager = new MenuManager();
-
-// menuManager.push(mainMenu);
-
-// const storage = new FileStorage({ subDirs: ["sessions"] });
-// const context = new Context({ storage, menuManager });
-
-// const app = new Application(context, new BlessedView());
-// await app.run();
+import { SessionManager } from "./src/modules/SessionManager.js";
 
 const bot = new Bot(process.env.BOT_API_KEY);
+const sessionManager = new SessionManager(bot);
 
 bot.api.setMyCommands([
   {
@@ -31,11 +18,28 @@ bot.api.setMyCommands([
   },
 ]);
 
-bot.command("start", async (ctx) => {});
+bot.command("start", async (tgCtx) => {
+  const chatId = tgCtx.chat.id;
+  const session = sessionManager.getSession(chatId);
 
-bot.command("delete", async (ctx) => {});
+  session.app.run(session.ctx, session.view);
+});
 
-bot.on("message", async (ctx) => {});
+bot.command("delete", async (tgCtx) => {});
+
+bot.on("message:text", async (tgCtx) => {
+  
+});
+
+bot.on("callback_query:data", async (tgCtx) => {
+  const chatId = tgCtx.chat.id;
+  const session = sessionManager.getSession(chatId);
+  const input = tgCtx.callbackQuery.data;
+
+  if (session.view.waitInput) {
+    session.view.submitInput(input);
+  }
+});
 
 bot.catch((err) => {
   const ctx = err.ctx;

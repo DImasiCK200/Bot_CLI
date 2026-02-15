@@ -4,15 +4,19 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "console": "node index_consoleView.js"
+    "console": "node index_consoleView.js",
+    "telegram": "node index_telegram.js"
   },
   "type": "module",
   "author": "ShapkUshank",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@grammyjs/storage-psql": "^2.5.1",
     "axios": "^1.13.4",
     "blessed": "^0.1.81",
+    "dotenv": "^17.3.1",
+    "grammy": "^1.40.0",
     "steam-totp": "^2.1.2",
     "steam-tradeoffer-manager": "^2.12.2",
     "steamcommunity": "^3.48.8"
