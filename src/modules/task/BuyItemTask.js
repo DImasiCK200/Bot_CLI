@@ -17,13 +17,13 @@ export class BuyItemTask extends Task {
     try {
       this.start();
       for (let i = 1; i <= this.quantity; i++) {
-        await new Promise((r) => setTimeout(r, 1000));
+        await this.runWithCancel(new Promise((r) => setTimeout(r, 1000)));
         this.setProgress(Math.floor((i / this.quantity) * 100));
       }
 
       this.complete();
     } catch (err) {
-      if (this.isCancelled) return;
+      if (this.isCancelled()) return;
 
       this.fail(err);
     }

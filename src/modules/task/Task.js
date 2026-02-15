@@ -65,13 +65,13 @@ export class Task extends EventEmitter {
   }
 
   async runWithCancel(promise) {
-    return Promise.race(
+    return Promise.race([
       promise,
       new Promise((_, reject) => {
         this.signal.addEventListener("abort", () =>
           reject(new Error("Cancelled")),
         );
       }),
-    );
+    ]);
   }
 }

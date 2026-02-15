@@ -1,6 +1,7 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
 import { addTaskMenu } from "./addTaskMenu.js";
 import { showTaskInfoMenu } from "./showTaskInfoMenu.js";
+import { cancelTaskMenu } from "./cancelTaskMenu.js";
 import { PushMenuCommand } from "../../../modules/commands/index.js";
 
 export const taskMenu = new Menu({

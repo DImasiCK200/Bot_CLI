@@ -10,6 +10,7 @@ export { UpdateSharedSecretCommand } from "./appCommands/account/UpdateSharedSec
 export { UpdatePasswordCommand } from "./appCommands/account/UpdatePasswordCommand.js";
 export { UpdateMarketApiKeyCommand } from "./appCommands/account/UpdateMarketApiKeyCommand.js";
 export { ChooseTaskCommand } from "./appCommands/tasks/ChooseTaskCommand.js";
+export { CancelTaskCommand } from "./appCommands/tasks/CancelTaskCommand.js";
 export { BuyItemCommand } from "./appCommands/tasks/BuyItemCommand.js";
 
 export { AddAccountFlowCommand } from "./flowCommands/account/AddAccountFlowCommand.js";
