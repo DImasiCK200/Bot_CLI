@@ -1,5 +1,4 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { RenameAccountFlowCommand } from "../../commands/index.js";
 
 export class RenameAccountFlow extends WizardFlow {
   constructor(callback) {

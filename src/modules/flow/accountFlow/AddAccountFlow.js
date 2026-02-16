@@ -1,5 +1,4 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { AddAccountFlowCommand } from "../../commands/index.js";
 
 export class AddAccountFlow extends WizardFlow {
   constructor(callback) {

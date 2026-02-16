@@ -1,5 +1,4 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { UpdateMarketApiKeyFlowCommand } from "../../commands/index.js";
 
 export class UpdateMarketApiKeyFlow extends WizardFlow {
   constructor(callback) {

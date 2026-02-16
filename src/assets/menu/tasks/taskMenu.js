@@ -9,7 +9,7 @@ export const taskMenu = new Menu({
   isDynamic: true,
 
   descriptionFn: (ctx) => {
-    const tasks = ctx.taskManager.getAll();
+    const tasks = ctx.taskManager.getRunning();
 
     if (!tasks.length) return "No tasks";
 

@@ -1,5 +1,4 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { UpdatePasswordFlowCommand } from "../../commands/index.js";
 
 export class UpdatePasswordFlow extends WizardFlow {
   constructor(callback) {
