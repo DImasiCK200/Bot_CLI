@@ -18,17 +18,14 @@ export class SessionManager {
     menuManager.push(mainMenu);
 
     const ctx = new Context({ storage, menuManager });
-    const view = new TelegramView(this.bot, chatId, null);
+    const view = new TelegramView(this.bot, chatId);
     const app = new Application();
 
     this.sessions.set(chatId, { app, view, ctx });
+    return this.sessions.get(chatId);
   }
 
   getSession(chatId) {
-    if (!this.sessions.has(chatId)) {
-      this.createSession(chatId);
-    }
-
     return this.sessions.get(chatId);
   }
 

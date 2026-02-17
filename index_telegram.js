@@ -20,25 +20,34 @@ bot.api.setMyCommands([
 
 bot.command("start", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const session = sessionManager.getSession(chatId);
+  const { app, ctx, view } = sessionManager.createSession(chatId);
 
-  session.app.run(session.ctx, session.view);
+  app.run(ctx, view);
 });
 
-bot.command("delete", async (tgCtx) => {});
+bot.command("delete", async (tgCtx) => {
+  const chatId = tgCtx.chat.id;
+
+  sessionManager.deleteSession(chatId);
+});
 
 bot.on("message:text", async (tgCtx) => {
-  
+  const chatId = tgCtx.chat.id;
+  const { view } = sessionManager.getSession(chatId);
+  const message = tgCtx.message;
+  const input = message.text;
+
+  await tgCtx.api.deleteMessage(message.chat.id, message.message_id);
+
+  view.inputResolver && view.submitInput(input);
 });
 
 bot.on("callback_query:data", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const session = sessionManager.getSession(chatId);
+  const { view } = sessionManager.getSession(chatId);
   const input = tgCtx.callbackQuery.data;
 
-  if (session.view.waitInput) {
-    session.view.submitInput(input);
-  }
+  view.inputResolver && view.submitInput(input);
 });
 
 bot.catch((err) => {

@@ -4,7 +4,7 @@ import { TaskPresenter } from "../../../modules/presenters/TaskPresenter.js";
 
 export const showTaskInfoMenu = new Menu({
   title: "Task details:",
-  isDynamic: true,
+  isDynamic: false,
 
   descriptionFn: (ctx) => {
     const task = ctx.taskManager.pop();

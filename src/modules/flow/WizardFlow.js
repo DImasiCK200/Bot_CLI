@@ -51,9 +51,7 @@ export class WizardFlow extends Flow {
 
   back() {
     if (this.step > 0) {
-      console.log(this.step);
       this.step--;
-      console.log(this.step);
     }
     return this.ask();
   }
