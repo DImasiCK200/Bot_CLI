@@ -288,6 +288,73 @@ export class SteamAPI {
     return recievedItems;
   }
 
+  async sellItem(assetid, priceRub, contextid = 2, appid = 730) {
+    return await this.steamSellAPI.sellItem(
+      assetid,
+      priceRub,
+      contextid,
+      appid,
+    );
+  }
+
+  async buyOrder(
+    marketHashName,
+    priceRub,
+    quantity = 1,
+    currency = 5,
+    appid = 730,
+    confirmation = 0,
+  ) {
+    return await this.steamSellAPI.buyOrder(
+      marketHashName,
+      priceRub,
+      quantity,
+      currency,
+      appid,
+      confirmation,
+    );
+  }
+
+  async getPriceOverview(
+    marketHashName,
+    country = "RU",
+    currency = 5,
+    appid = 730,
+  ) {
+    return await this.steamSellAPI.getPriceOverview(
+      marketHashName,
+      country,
+      currency,
+      appid,
+    );
+  }
+
+  async getPriceHistory(marketHashName, currency = 5, appid = 730) {
+    return await this.steamSellAPI.getPriceHistory(
+      marketHashName,
+      currency,
+      appid,
+    );
+  }
+
+  async createBuyOrderWithRetry(
+    marketHashName,
+    priceTotalCents,
+    quantity = 1,
+    currency = 5,
+    appid = 730,
+    options = {},
+  ) {
+    return await this.steamSellAPI.createBuyOrderWithRetry(
+      marketHashName,
+      priceTotalCents,
+      quantity,
+      currency,
+      appid,
+      options,
+    );
+  }
+
   async refreshSession() {
     this._clearSession();
 

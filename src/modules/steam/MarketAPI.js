@@ -1,8 +1,5 @@
-import { log } from "console";
 import axios from "axios";
 import { sleep } from "./utils.js";
-
-const age = 60 * 5 * 1000;
 
 const createItems = (itemIds, prices, transformPrice = (p) => p * 100) => {
   if (!Array.isArray(itemIds) || !Array.isArray(prices)) {
@@ -11,7 +8,7 @@ const createItems = (itemIds, prices, transformPrice = (p) => p * 100) => {
 
   if (itemIds.length !== prices.length) {
     throw new Error(
-      `Массивы itemIds и prices разной длины: ${itemIds.length} !== ${prices.length}`
+      `Массивы itemIds и prices разной длины: ${itemIds.length} !== ${prices.length}`,
     );
   }
 
@@ -19,15 +16,6 @@ const createItems = (itemIds, prices, transformPrice = (p) => p * 100) => {
     item_id: id,
     price: transformPrice(prices[i]),
   }));
-};
-
-const countBy = (array, param) => {
-  return array.reduce((acc, item) => {
-    const name = item[param];
-
-    acc[name] = (acc[name] || 0) + 1;
-    return acc;
-  }, {});
 };
 
 export class MarketAPI {
@@ -73,7 +61,6 @@ export class MarketAPI {
   async getCached(field, updateFn) {
     const cache = this[field];
     if (!cache || Date.now() - cache.lastUpdate > this.age) {
-      
       await updateFn.call(this);
     }
     return this[field];
@@ -185,7 +172,7 @@ export class MarketAPI {
   cancelSell(itemIds) {
     return this.sellSomeItems(
       itemIds,
-      itemIds.map(() => 0)
+      itemIds.map(() => 0),
     );
   }
 
@@ -238,7 +225,7 @@ export class MarketAPI {
   async buyItemMass({ marketHashName, id, price, customId }, quantity) {
     const promises = [];
     let counter = 1;
-    let money = await this.getMoney()
+    let money = await this.getMoney();
 
     while (quantity > 0 && money > price) {
       const promise = this.buyItem({ marketHashName, id, price, customId })
@@ -250,13 +237,12 @@ export class MarketAPI {
         });
       quantity -= 1;
       this.balance.money -= price;
-      promises.push(promise)
-      await sleep(this.delay)
+      promises.push(promise);
+      await sleep(this.delay);
     }
 
     await Promise.allSettled(promises);
     console.log("Все куплено");
-    
   }
 
   buyFor({ marketHashName, id, price, partner, token, chance, customId }) {
@@ -308,38 +294,13 @@ export class MarketAPI {
 
   // Передача денег на другой аккаунт
   moneySend({ amount, partnerKey, payPass }) {
-    return this.request(`/money-send/${this.priceToInt(amount)}/${partnerKey}`, {
-      pay_pass: payPass,
-    })
+    return this.request(
+      `/money-send/${this.priceToInt(amount)}/${partnerKey}`,
+      {
+        pay_pass: payPass,
+      },
+    );
   }
 }
-
-const main = async () => {
-  const itemIds = [1, 2, 3, 4, 5];
-  const prices = [110, 120, 130, 140, 150];
-  const listItems = [
-    "M4A1-S | Black Lotus (Field-Tested)",
-    "AWP | Ice Coaled (Battle-Scarred)",
-  ];
-
-  const key = "aXh729SocCtGlfWDOg2N5c899C7gvTg";
-  const api = new MarketAPI(key);
-
-  // const balance = await api.getBalance();
-  // const inventory = await api.getInventory();
-
-  // console.log("--------------");
-
-  // console.log(`Баланс: ${balance.money} ${balance.currency}`);
-  // console.log("Инвентарь:");
-
-  // const result = countBy(inventory.items, "market_hash_name");
-  // console.log(result);
-  console.table(await api.getBalance())
-
-  // log(await api.buyItemMass({ marketHashName: "Fever Case", price: 60}, 98));
-};
-
-// main()
 
 export { MarketAPI };

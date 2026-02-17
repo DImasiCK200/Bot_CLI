@@ -2,6 +2,7 @@ import { Account } from "./Account.js";
 import { NotfoundError, ValidationError } from "../errors/index.js";
 
 import { SteamAPI } from "../steam/SteamAPI.js";
+import { MarketAPI } from "../steam/MarketAPI.js";
 
 export class AccountManager {
   constructor({ storage }) {
@@ -128,6 +129,11 @@ export class AccountManager {
     }
 
     return this.currentAccount.steamAPI;
+  }
+
+  getMarketAPI() {
+    if (!this.marketApiKey) throw new NotfoundError("CSGO Market API key not found")
+    return new MarketAPI(this.marketApiKey)
   }
 
   remove() {
