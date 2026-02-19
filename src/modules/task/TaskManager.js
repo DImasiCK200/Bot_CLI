@@ -3,7 +3,6 @@ import EventEmitter from "events";
 export class TaskManager extends EventEmitter {
   constructor() {
     super();
-    this.taskList = []
     this.tasks = [];
     this.currentTask = null;
   }

@@ -302,5 +302,3 @@ export class MarketAPI {
     );
   }
 }
-
-export { MarketAPI };
