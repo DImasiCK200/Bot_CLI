@@ -19,7 +19,10 @@ export class BuyItemTask extends Task {
       this.start();
       for (let i = 1; i <= this.quantity; i++) {
         await new Promise((r) => setTimeout(r, 1000));
-        this.setProgress(Math.floor(i / this.quantity * 100));
+        const progress = Math.floor((i / this.quantity) * 100);
+        if (progress !== 100) {
+          this.setProgress(Math.floor((i / this.quantity) * 100));
+        }
       }
 
       this.complete();

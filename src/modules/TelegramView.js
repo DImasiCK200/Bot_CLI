@@ -1,55 +1,72 @@
+import { InlineKeyboard } from "grammy";
+
 export class TelegramView {
-  constructor(bot, chatId, tgCtx = null) {
+  constructor(bot, chatId) {
     this.bot = bot;
     this.chatId = chatId;
-    this.tgCtx = tgCtx;
     this.inputResolver = null;
-    this.waitInput = null; // text, img, file, etc
+    this.lastMessageId = null;
   }
 
-  setWaitInput(state = null) {
-    this.waitInput = state;
+  createKeyboard(items) {
+    let inlineKeyboard = new InlineKeyboard();
+    const [navItem, ...rest] = items;
+
+    rest.forEach((item, i) => {
+      inlineKeyboard.text(item.label, String(i + 1)).row();
+    });
+
+    inlineKeyboard.text(navItem.label, "0").row();
+
+    return inlineKeyboard;
   }
 
   async showMessage(text) {
     await this.bot.api.sendMessage(this.chatId, text);
   }
 
-  async showError(err) {}
+  async showError(err) {
+    this.showPage("ERROR", err.message);
+  }
 
-  async showFlowOutput(flowResult) {}
+  async showFlowOutput(flowResult) {
+    const title = flowResult.title;
+    let output = `${flowResult.description}\n\n`;
+    output += `${flowResult.message}`;
+
+    this.showPage(title, output);
+  }
+
+  async showPage(title, content, keyboard = null) {
+    let output = `${title}\n\n`;
+    output += Array.isArray(content) ? content.join("\n") : content;
+
+    const options = {};
+
+    if (keyboard) {
+      options.reply_markup = keyboard;
+    }
+
+    if (this.lastMessageId) {
+      return await this.bot.api.editMessageText(
+        this.chatId,
+        this.lastMessageId,
+        output,
+        options,
+      );
+    }
+
+    return await this.bot.api.sendMessage(this.chatId, output, options);
+  }
 
   async showMenu(menu, items, ctx) {
-    let output = `${menu.title}\n\n`;
-    let InlineKeyboard = [];
-
-    const itemsNew = [...items];
-    const navItem = itemsNew.shift();
+    const title = menu.title;
     const desc = await menu.getDescription(ctx);
 
-    output += `${desc}\n\n`;
+    const keyboard = this.createKeyboard(items);
 
-    itemsNew.forEach((item, i) => {
-      InlineKeyboard.push([
-        {
-          text: item.label,
-          callback_data: String(i + 1),
-        },
-      ]);
-    });
-
-    InlineKeyboard.push([
-      {
-        text: navItem.label,
-        callback_data: String(0),
-      },
-    ]);
-
-    await this.bot.api.sendMessage(this.chatId, output, {
-      reply_markup: {
-        inline_keyboard: InlineKeyboard,
-      },
-    });
+    const msg = await this.showPage(title, desc, keyboard);
+    this.lastMessageId = msg.message_id;
   }
 
   submitInput(value) {
@@ -58,17 +75,14 @@ export class TelegramView {
     const resolver = this.inputResolver;
 
     this.inputResolver = null;
-    this.setWaitInput(null);
 
     resolver(value);
   }
 
-  async getInput(type = "text") {
+  async getInput() {
     if (this.inputResolver) {
       throw new Error("Input already pending");
     }
-
-    this.setWaitInput(type);
 
     return new Promise((resolve) => {
       this.inputResolver = resolve;
@@ -76,7 +90,7 @@ export class TelegramView {
   }
 
   async getChoice(items) {
-    const value = await this.getInput("number");
+    const value = await this.getInput();
 
     const index = Number(value);
 
@@ -88,15 +102,13 @@ export class TelegramView {
   }
 
   // async getFile() {
-  //   this.setWaitInput("file");
   // }
 
   // async getImage() {
-  //   this.setWaitInput("image");
   // }
 
   async getEnter() {
-    await this.getInput("enter");
+    await this.getInput();
   }
 
   close() {}
