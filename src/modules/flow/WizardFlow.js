@@ -15,6 +15,7 @@ export class WizardFlow extends Flow {
   }
 
   start() {
+    this.started = true;
     return this.ask();
   }
 

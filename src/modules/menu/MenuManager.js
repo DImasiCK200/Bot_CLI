@@ -30,7 +30,7 @@ export class MenuManager {
     if (this.canGoBack) {
       items.unshift(new MenuItem("Back", new BackMenuCommand()));
     } else {
-      items.unshift(new MenuItem("Exit", new ExitCommand()));
+      // items.unshift(new MenuItem("Exit", new ExitCommand()));
     }
 
     return items;

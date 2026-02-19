@@ -6,10 +6,80 @@ export class UserRuntime {
     this.view = view;
     this.ctx = ctx;
 
-    session.on("start", this.run)
-    session.on("close", this.shutdown)
-    session.on("message", this.run)
-    session.on("callbackQuery", this.shutdown)
+    session.on("start", async () => {
+      await this.handleStart();
+    });
+    session.on("close", async () => {
+      await this.shutdown();
+    });
+    session.on("message", async (data, tgCtx) => {
+      await this.handleMessage(data, tgCtx);
+    });
+    session.on("callbackQuery", async (data, tgCtx) => {
+      await this.handleCallback(data, tgCtx);
+    });
+  }
+
+  async handleStart() {
+    await this.init();
+    await this.renderUI();
+  }
+
+  async handleMessage(text, tgCtx) {
+    if (this.ctx.activeFlow) {
+      await this.handleFlowInput(text, tgCtx);
+    }
+  }
+
+  async handleCallback(data, tgCtx) {
+    if (this.ctx.activeFlow) {
+      await this.handleFlowInput(data, tgCtx);
+      return;
+    }
+
+    await this.handleMenuChoice(data, tgCtx);
+  }
+
+  async handleMenuChoice(input, tgCtx) {
+    const items = await this.ctx.menuManager.getItems(this.ctx);
+    const item = items[input];
+
+    if (!item) return;
+
+    await item.command.execute(this.ctx);
+
+    const flow = this.ctx.activeFlow;
+    if (this.ctx.activeFlow) {
+      if (!flow.started) {
+        const result = flow.start();
+        await this.view.showFlowOutput(result);
+        return;
+      }
+    }
+    await this.renderUI();
+  }
+
+  async handleFlowInput(input, tgCtx) {
+    const flow = this.ctx.activeFlow;
+
+    if (!flow.started) {
+      const result = flow.start();
+      await this.view.showFlowOutput(result);
+      return;
+    }
+
+    const result = flow.handleInput(input);
+
+    if (result.message) {
+      await this.view.showFlowOutput(result);
+    }
+
+    if (result.done) {
+      if (result.command) await result.command.execute(this.ctx);
+
+      this.ctx.activeFlow = null;
+      await this.renderUI();
+    }
   }
 
   async init() {
@@ -32,86 +102,23 @@ export class UserRuntime {
       this.setupSubscriptions();
     } catch (err) {
       this.handleError(err);
-      await this.view.getEnter();
-    }
-  }
-
-  async run() {
-    try {
-      await this.init();
-
-      while (this.ctx.isRunning) {
-        try {
-          // Flow
-          if (this.ctx.activeFlow && !this.ctx.activeFlow.started) {
-            const result = this.ctx.activeFlow.start();
-            this.ctx.activeFlow.started = true;
-            this.view.showFlowOutput(result);
-          }
-
-          if (this.ctx.activeFlow) {
-            const input = await this.view.getInput();
-            const result = this.ctx.activeFlow.handleInput(input);
-
-            if (result) {
-              if (result.message) {
-                this.view.showFlowOutput(result);
-              }
-
-              if (result.done) {
-                if (result.command) {
-                  await result.command.execute(this.ctx);
-                }
-                this.ctx.activeFlow = null;
-              }
-            }
-
-            continue;
-          }
-
-          //Menu
-          await this.menuAction();
-        } catch (err) {
-          this.handleError(err);
-          await this.view.getEnter();
-        }
-      }
-    } finally {
-      await this.shutdown();
     }
   }
 
   setupSubscriptions() {
     this.ctx.taskManager.on("update", async () => {
-      await this.refreshUI();
+      console.log(this.ctx.menuManager.current.isDynamic);
+      if (this.ctx.menuManager.current.isDynamic) await this.renderUI();
     });
   }
 
-  async refreshUI() {
+  async renderUI() {
     if (this.ctx.activeFlow) return;
 
     const menu = this.ctx.menuManager.current;
-    if (menu?.isDynamic) {
-      const items = await this.ctx.menuManager.getItems(this.ctx);
-      await this.view.showMenu(menu);
-    }
-  }
+    const items = await this.ctx.menuManager.getItems(this.ctx);
 
-  async flowAction() {
-
-  }
-
-  async menuAction() {
-    const menuManager = this.ctx.menuManager;
-    const menu = menuManager.current;
-    const items = await menuManager.getItems(this.ctx);
     await this.view.showMenu(menu, items, this.ctx);
-
-    const menuItem = await this.view.getChoice(items);
-
-    if (menuItem) {
-      await menuItem.command.execute(this.ctx);
-    }
   }
 
   handleError(err) {

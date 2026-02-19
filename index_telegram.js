@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { Bot, GrammyError, HttpError, InlineKeyboard, session } from "grammy";
-import { PsqlAdapter } from "@grammyjs/storage-psql";
+import { Bot, GrammyError, HttpError } from "grammy";
+// import { PsqlAdapter } from "@grammyjs/storage-psql";
 
 import { SessionManager } from "./src/modules/SessionManager.js";
 
@@ -20,9 +20,9 @@ bot.api.setMyCommands([
 
 bot.command("start", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const { app, ctx, view } = sessionManager.createSession(chatId);
+  const { session } = sessionManager.createSession(chatId);
 
-  app.run(ctx, view);
+  session.start();
 });
 
 bot.command("delete", async (tgCtx) => {
@@ -33,21 +33,21 @@ bot.command("delete", async (tgCtx) => {
 
 bot.on("message:text", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const { view } = sessionManager.getSession(chatId);
+  const { session } = sessionManager.getSession(chatId);
   const message = tgCtx.message;
   const input = message.text;
 
   await tgCtx.api.deleteMessage(message.chat.id, message.message_id);
 
-  view.inputResolver && view.submitInput(input);
+  session.newMessage(input);
 });
 
 bot.on("callback_query:data", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const { view } = sessionManager.getSession(chatId);
+  const { session } = sessionManager.getSession(chatId);
   const input = tgCtx.callbackQuery.data;
 
-  view.inputResolver && view.submitInput(input);
+  session.newCallbackQuery(input);
 });
 
 bot.catch((err) => {

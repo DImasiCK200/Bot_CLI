@@ -5,7 +5,7 @@ import { FileStorage } from "./storage/FileStorage.js";
 import { mainMenu } from "../assets/menu/mainMenu.js";
 import { TelegramView } from "./TelegramView.js";
 import { NotfoundError } from "./errors/index.js";
-import {SessionEvents} from "./SessionEvents.js";
+import { SessionEvents } from "./SessionEvents.js";
 
 export class SessionManager {
   constructor(bot) {
@@ -23,8 +23,9 @@ export class SessionManager {
     const view = new TelegramView(this.bot, chatId, null);
     const userRuntime = new UserRuntime(session, ctx, view);
 
-    this.sessions.set(chatId, userRuntime );
-    return this.sessions.get(chatId)
+    this.sessions.set(chatId, { session, userRuntime });
+
+    return this.sessions.get(chatId);
   }
 
   getSession(chatId) {

@@ -26,7 +26,7 @@ export class TelegramView {
   }
 
   async showError(err) {
-    this.showPage("ERROR", err.message);
+    await this.showPage("ERROR", err.message);
   }
 
   async showFlowOutput(flowResult) {
@@ -34,7 +34,7 @@ export class TelegramView {
     let output = `${flowResult.description}\n\n`;
     output += `${flowResult.message}`;
 
-    this.showPage(title, output);
+    await this.showPage(title, output);
   }
 
   async showPage(title, content, keyboard = null) {

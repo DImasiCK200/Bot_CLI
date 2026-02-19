@@ -1,24 +1,24 @@
 import EventEmitter from "events";
 
 export class SessionEvents extends EventEmitter {
-    constructor(chatId) {
-        super();
-        this.chatId = chatId;
-    }
+  constructor(chatId) {
+    super();
+    this.chatId = chatId;
+  }
 
-    start() {
-        this.emit("start");
-    }
+  start() {
+    this.emit("start");
+  }
 
-    close() {
-        this.emit("close");
-    }
+  close() {
+    this.emit("close");
+  }
 
-    newMessage(text) {
-        this.emit("message", text)
-    }
+  newMessage(text, tgCtx) {
+    this.emit("message", text, tgCtx);
+  }
 
-    newCallbackQuery(text) {
-        this.emit("callbackQuery", text)
-    }
+  newCallbackQuery(text, tgCtx) {
+    this.emit("callbackQuery", text, tgCtx);
+  }
 }
