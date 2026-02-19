@@ -6,7 +6,7 @@
 
 ## Архитектура
 
-* **Application** — управляет жизненным циклом приложения
+* **UserRuntime** — управляет жизненным циклом приложения
 * **Context** — хранит состояние и ссылки на менеджеры
 * **AccountManager** — управляет аккаунтами
 * **TaskManager** — управляет фоновыми задачами
@@ -18,7 +18,7 @@
 ## Пример структуры
 
 ```
-Application
+UserRuntime
   └─ run loop
 Context
   ├─ accountManager
@@ -45,7 +45,7 @@ Commands
 ## Пример использования
 
 ```javascript
-import { Application } from "./src/Application.js";
+import { UserRuntime } from "./src/UserRuntime.js";
 import { Context } from "./src/Context.js";
 import { ConsoleView } from "./src/ConsoleView.js";
 import { Menu } from "./src/menu/Menu.js";
@@ -79,9 +79,9 @@ const mainMenu = new Menu(
 // Стартовое меню
 context.pushMenu(mainMenu);
 
-// View и Application
+// View и UserRuntime
 const view = new ConsoleView();
-const app = new Application(context, view);
+const app = new UserRuntime(context, view);
 
 // Запуск приложения
 await app.run();

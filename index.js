@@ -1,4 +1,4 @@
-import { Application } from "./src/modules/Application.js";
+import { UserRuntime } from "./src/modules/UserRuntime.js";
 import { Context } from "./src/modules/Context.js";
 import { BlessedView } from "./src/modules/BlessedView.js";
 import { MenuManager } from "./src/modules/menu/index.js";
@@ -12,5 +12,5 @@ menuManager.push(mainMenu);
 const storage = new FileStorage({ subDirs: ["sessions"] });
 const context = new Context({ storage, menuManager });
 
-const app = new Application(context, new BlessedView());
+const app = new UserRuntime(context, new BlessedView());
 await app.run();

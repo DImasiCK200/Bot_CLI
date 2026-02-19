@@ -20,12 +20,16 @@ bot.api.setMyCommands([
 
 bot.command("start", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const session = sessionManager.getSession(chatId);
+  const userRuntime = sessionManager.createSession(chatId);
 
-  session.app.run(session.ctx, session.view);
+  userRuntime.run();
 });
 
-bot.command("delete", async (tgCtx) => {});
+bot.command("delete", async (tgCtx) => {
+  const chatId = tgCtx.chat.id;
+
+  sessionManager.deleteSession(chatId);
+});
 
 bot.on("message:text", async (tgCtx) => {
   
@@ -33,12 +37,15 @@ bot.on("message:text", async (tgCtx) => {
 
 bot.on("callback_query:data", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const session = sessionManager.getSession(chatId);
+  const userRuntime = sessionManager.getSession(chatId);
   const input = tgCtx.callbackQuery.data;
 
-  if (session.view.waitInput) {
-    session.view.submitInput(input);
-  }
+  // session.emit("callback_query", input);
+
+
+
+  userRuntime.view.waitInput && userRuntime.view.submitInput(input);
+
 });
 
 bot.catch((err) => {
