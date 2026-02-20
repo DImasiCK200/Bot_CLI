@@ -1,6 +1,6 @@
 import { UserRuntime } from "./src/modules/UserRuntime.js";
 import { Context } from "./src/modules/Context.js";
-import { BlessedView } from "./src/modules/BlessedView.js";
+import { BlessedView } from "./src/modules/views/BlessedView.js";
 import { MenuManager } from "./src/modules/menu/index.js";
 import { FileStorage } from "./src/modules/storage/FileStorage.js";
 import { mainMenu } from "./src/assets/menu/mainMenu.js";

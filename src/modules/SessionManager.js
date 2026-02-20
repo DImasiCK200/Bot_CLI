@@ -3,7 +3,7 @@ import { Context } from "./Context.js";
 import { MenuManager } from "./menu/index.js";
 import { FileStorage } from "./storage/FileStorage.js";
 import { mainMenu } from "../assets/menu/mainMenu.js";
-import { TelegramView } from "./TelegramView.js";
+import { TelegramView } from "./views/TelegramView.js";
 import { NotfoundError } from "./errors/index.js";
 import { SessionEvents } from "./SessionEvents.js";
 

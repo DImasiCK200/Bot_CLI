@@ -5,8 +5,8 @@ export class WizardFlow extends Flow {
     super();
     this.steps = steps;
     this.commands = {
-      "/cancel": this.cancel.bind(this),
-      "/back": this.back.bind(this),
+      "/cancel": { label: "Cancel", command: this.cancel.bind(this) },
+      "/back": { label: "Back", command: this.back.bind(this) },
     };
   }
 

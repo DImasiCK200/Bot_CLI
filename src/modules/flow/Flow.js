@@ -4,7 +4,7 @@ export class Flow {
     this.data = {};
     this.started = false;
     this.title = "[BASIC FLOW]";
-    this.description = "/cancel - cancel, /back - go to previous page";
+    // this.description = "/cancel - cancel, /back - go to previous page";
     this.commands = {};
   }
 
@@ -12,15 +12,25 @@ export class Flow {
     return {
       title: this.title,
       description: this.description,
+      items: this.formatCommands(),
       message,
       done,
       command,
     };
   }
 
+  formatCommands() {
+    const commands = this.commands;
+    const keys = Object.keys(commands);
+
+    return keys.map((key) => {
+      return { label: commands[key].label, callbackQuery: key };
+    });
+  }
+
   tryCommand(input) {
     if (!input?.startsWith("/")) return null;
     const cmd = this.commands[input];
-    return cmd ? cmd() : null;
+    return cmd ? cmd.command() : null;
   }
 }

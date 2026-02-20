@@ -1,5 +1,5 @@
 import blessed from "blessed";
-import { ValidationError } from "./errors/index.js";
+import { ValidationError } from "../errors/index.js";
 
 export class BlessedView {
   constructor() {

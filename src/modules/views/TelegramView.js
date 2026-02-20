@@ -10,31 +10,38 @@ export class TelegramView {
 
   createKeyboard(items) {
     let inlineKeyboard = new InlineKeyboard();
-    const [navItem, ...rest] = items;
 
-    rest.forEach((item, i) => {
-      inlineKeyboard.text(item.label, String(i + 1)).row();
+    items.forEach((item, i) => {
+      inlineKeyboard
+        .text(item.label, String(item.callbackQuery ? item.callbackQuery : i))
+        .row();
     });
-
-    inlineKeyboard.text(navItem.label, "0").row();
 
     return inlineKeyboard;
   }
 
-  async showMessage(text) {
-    await this.bot.api.sendMessage(this.chatId, text);
+  async sendMessage(title, message) {
+    let output = `${title}\n`;
+    output += message;
+
+    await this.bot.api.sendMessage(this.chatId, output);
   }
 
-  async showError(err) {
-    await this.showPage("ERROR", err.message);
+  async sendError(err) {
+    await this.sendMessage("ERROR", err.message);
   }
 
   async showFlowOutput(flowResult) {
     const title = flowResult.title;
-    let output = `${flowResult.description}\n\n`;
+    const items = flowResult.items;
+    let output = ``;
+
+    if (flowResult.description) output += `${flowResult.description}\n\n`;
     output += `${flowResult.message}`;
 
-    await this.showPage(title, output);
+    const keyboard = this.createKeyboard(items);
+
+    await this.showPage(title, output, keyboard);
   }
 
   async showPage(title, content, keyboard = null) {
@@ -67,48 +74,6 @@ export class TelegramView {
 
     const msg = await this.showPage(title, desc, keyboard);
     this.lastMessageId = msg.message_id;
-  }
-
-  submitInput(value) {
-    if (!this.inputResolver) return;
-
-    const resolver = this.inputResolver;
-
-    this.inputResolver = null;
-
-    resolver(value);
-  }
-
-  async getInput() {
-    if (this.inputResolver) {
-      throw new Error("Input already pending");
-    }
-
-    return new Promise((resolve) => {
-      this.inputResolver = resolve;
-    });
-  }
-
-  async getChoice(items) {
-    const value = await this.getInput();
-
-    const index = Number(value);
-
-    if (Number.isNaN(index) || !items[index]) {
-      throw new Error("Invalid choice");
-    }
-
-    return items[index];
-  }
-
-  // async getFile() {
-  // }
-
-  // async getImage() {
-  // }
-
-  async getEnter() {
-    await this.getInput();
   }
 
   close() {}

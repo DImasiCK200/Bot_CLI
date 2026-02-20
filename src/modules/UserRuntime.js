@@ -5,6 +5,7 @@ export class UserRuntime {
   constructor(session, ctx, view) {
     this.view = view;
     this.ctx = ctx;
+    this.lastUpdate = 0;
 
     session.on("start", async () => {
       await this.handleStart();
@@ -48,14 +49,10 @@ export class UserRuntime {
 
     await item.command.execute(this.ctx);
 
-    const flow = this.ctx.activeFlow;
     if (this.ctx.activeFlow) {
-      if (!flow.started) {
-        const result = flow.start();
-        await this.view.showFlowOutput(result);
-        return;
-      }
+      await this.handleFlowInput(input, tgCtx);
     }
+
     await this.renderUI();
   }
 
@@ -107,8 +104,12 @@ export class UserRuntime {
 
   setupSubscriptions() {
     this.ctx.taskManager.on("update", async () => {
-      console.log(this.ctx.menuManager.current.isDynamic);
-      if (this.ctx.menuManager.current.isDynamic) await this.renderUI();
+      const thisUpdate = Date.now();
+      const diffUpdate = thisUpdate - this.lastUpdate;
+      this.lastUpdate = thisUpdate;
+
+      if (diffUpdate > 500)
+        if (this.ctx.menuManager.current.isDynamic) await this.renderUI();
     });
   }
 
@@ -123,23 +124,23 @@ export class UserRuntime {
 
   handleError(err) {
     if (err instanceof FatalError) {
-      this.view.showError(err);
+      this.view.sendError(err);
       this.ctx.isRunning = false;
       return;
     }
 
     if (err instanceof ValidationError) {
-      this.view.showError(err);
+      this.view.sendError(err);
       return;
     }
 
     if (err instanceof NotfoundError) {
-      this.view.showError(err);
+      this.view.sendError(err);
       this.ctx.setAppState();
       return;
     }
 
-    this.view.showError(new Error("Unexpected error"));
+    this.view.sendError(new Error("Unexpected error"));
     this.ctx.isRunning = false;
     console.error(err);
   }

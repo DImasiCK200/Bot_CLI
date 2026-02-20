@@ -4,7 +4,7 @@ import { TaskPresenter } from "../../../modules/presenters/TaskPresenter.js";
 
 export const showTaskInfoMenu = new Menu({
   title: "Task details:",
-  isDynamic: false,
+  isDynamic: true,
 
   descriptionFn: (ctx) => {
     const task = ctx.taskManager.pop();
@@ -20,7 +20,10 @@ export const showTaskInfoMenu = new Menu({
     tasks.forEach((t) => {
       if (currentTask?.id !== t.id)
         items.push(
-          new MenuItem(`ID[${t.id}] - ${t.title}`, new ChooseTaskCommand(t.id)),
+          new MenuItem(
+            `ID[${t.id}] - ${t.title}(${t.progress}%)`,
+            new ChooseTaskCommand(t.id),
+          ),
         );
     });
 
