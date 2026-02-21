@@ -8,11 +8,12 @@ export class Flow {
     this.commands = {};
   }
 
-  newResult(message, done = false, command = null) {
+  newResult(message, done = false, command = null, items = null) {
     return {
       title: this.title,
       description: this.description,
-      items: this.formatCommands(),
+      items: items,
+      navItems: this.formatCommands(),
       message,
       done,
       command,

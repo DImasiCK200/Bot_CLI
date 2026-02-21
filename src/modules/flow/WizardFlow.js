@@ -43,7 +43,7 @@ export class WizardFlow extends Flow {
   }
 
   finish() {
-    return newResult("Done", true);
+    return this.newResult("Done", true);
   }
 
   cancel() {

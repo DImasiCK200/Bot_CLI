@@ -8,14 +8,25 @@ export class TelegramView {
     this.lastMessageId = null;
   }
 
-  createKeyboard(items) {
+  createKeyboard({ navItems, items }) {
     let inlineKeyboard = new InlineKeyboard();
 
-    items.forEach((item, i) => {
-      inlineKeyboard
-        .text(item.label, String(item.callbackQuery ? item.callbackQuery : i))
-        .row();
-    });
+    if (items) {
+      items.forEach((item, i) => {
+        inlineKeyboard
+          .text(item.label, String(item.callbackQuery ? item.callbackQuery : i))
+          .row();
+      });
+    }
+
+    if (navItems) {
+      navItems.forEach((item, i) => {
+        inlineKeyboard.text(
+          item.label,
+          String(item.callbackQuery ? item.callbackQuery : i),
+        );
+      });
+    }
 
     return inlineKeyboard;
   }
@@ -34,12 +45,13 @@ export class TelegramView {
   async showFlowOutput(flowResult) {
     const title = flowResult.title;
     const items = flowResult.items;
+    const navItems = flowResult.navItems;
     let output = ``;
 
     if (flowResult.description) output += `${flowResult.description}\n\n`;
     output += `${flowResult.message}`;
 
-    const keyboard = this.createKeyboard(items);
+    const keyboard = this.createKeyboard({ navItems, items });
 
     await this.showPage(title, output, keyboard);
   }
@@ -70,7 +82,7 @@ export class TelegramView {
     const title = menu.title;
     const desc = await menu.getDescription(ctx);
 
-    const keyboard = this.createKeyboard(items);
+    const keyboard = this.createKeyboard({ items });
 
     const msg = await this.showPage(title, desc, keyboard);
     this.lastMessageId = msg.message_id;
