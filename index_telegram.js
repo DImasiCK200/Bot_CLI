@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { Bot, GrammyError, HttpError } from "grammy";
-// import { PsqlAdapter } from "@grammyjs/storage-psql";
 
 import { SessionManager } from "./src/modules/SessionManager.js";
 

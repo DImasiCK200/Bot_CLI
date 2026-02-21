@@ -1,6 +1,7 @@
 import { AppState } from "./AppState.js";
 import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
 
+//TODO make new errorhandler
 export class UserRuntime {
   constructor(session, ctx, view) {
     this.view = view;
