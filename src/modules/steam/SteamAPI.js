@@ -23,6 +23,7 @@ export class SteamAPI {
     this.tradeManager = null;
     this.steamSellAPI = new SteamSellAPI();
 
+    this._previousTime = 0;
     this._session = session;
   }
 
@@ -170,11 +171,11 @@ export class SteamAPI {
     try {
       await new Promise((resolve, reject) => {
         let time = SteamTotp.time();
-        if (time === previousTime) {
+        if (time === this._previousTime) {
           time++;
         }
 
-        previousTime = time;
+        this._previousTime = time;
 
         const key = SteamTotp.getConfirmationKey(identitySecret, time, "allow");
 

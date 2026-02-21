@@ -70,12 +70,13 @@ export class UserRuntime {
 
     const result = flow.handleInput(input);
 
-    if (result.message) {
+    if (result?.message) {
       await this.view.showFlowOutput(result);
     }
 
-    if (result.done) {
-      if (result.command) await result.command.execute(this.ctx);
+    if (result?.done) {
+      if (result?.command && result.data)
+        await result.command(this.ctx, result.data);
 
       this.ctx.activeFlow = null;
       await this.renderUI();

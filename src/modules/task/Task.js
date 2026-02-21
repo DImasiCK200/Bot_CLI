@@ -3,7 +3,7 @@ import EventEmitter from "events";
 export class Task extends EventEmitter {
   constructor({ type, title }) {
     super();
-    this.id = crypto.randomUUID();
+    this.id = Date.now();
     this.type = type;
     this.title = title;
 

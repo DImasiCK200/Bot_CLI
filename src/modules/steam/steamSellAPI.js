@@ -99,7 +99,7 @@ export class SteamSellAPI {
   }
 
   priceToInt(priceRub) {
-    return Math.round(priceRub * 100);
+    return Math.round((priceRub * 100) / 1.15);
   }
 
   async request(endpoint, config = {}) {
@@ -165,7 +165,9 @@ export class SteamSellAPI {
           );
         }
         if (errorMsg.includes("SessionEvents mismatch")) {
-          console.warn("⚠️ SessionEvents mismatch — проверьте куки и sessionid");
+          console.warn(
+            "⚠️ SessionEvents mismatch — проверьте куки и sessionid",
+          );
         }
         return { success: false, error: errorMsg, data };
       }
@@ -174,7 +176,10 @@ export class SteamSellAPI {
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
-        if (status === 400 && data?.message?.includes("SessionEvents mismatch")) {
+        if (
+          status === 400 &&
+          data?.message?.includes("SessionEvents mismatch")
+        ) {
           return {
             success: false,
             error: "SessionEvents mismatch — неверный sessionid или куки",
@@ -203,6 +208,7 @@ export class SteamSellAPI {
 
   async sellItem(assetid, priceRub, contextid = 2, appid = 730) {
     const price = this.priceToInt(priceRub);
+
     return this.request("sellitem", {
       method: "POST",
       additionalHeaders: {
