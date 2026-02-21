@@ -7,6 +7,7 @@ export class UserRuntime {
     this.view = view;
     this.ctx = ctx;
     this.lastUpdate = 0;
+    this.menu = {}; //TODO needs to do cahce and delete this
 
     session.on("start", async () => {
       await this.handleStart();
@@ -43,7 +44,7 @@ export class UserRuntime {
   }
 
   async handleMenuChoice(input, tgCtx) {
-    const items = await this.ctx.menuManager.getItems(this.ctx);
+    const items = this.menu.items;
     const item = items[input];
 
     if (!item) return;
@@ -52,6 +53,7 @@ export class UserRuntime {
 
     if (this.ctx.activeFlow) {
       await this.handleFlowInput(input, tgCtx);
+      return;
     }
 
     await this.renderUI();
@@ -107,10 +109,11 @@ export class UserRuntime {
     this.ctx.taskManager.on("update", async () => {
       const thisUpdate = Date.now();
       const diffUpdate = thisUpdate - this.lastUpdate;
-      this.lastUpdate = thisUpdate;
 
-      if (diffUpdate > 500)
+      if (diffUpdate > 500) {
+        this.lastUpdate = thisUpdate;
         if (this.ctx.menuManager.current.isDynamic) await this.renderUI();
+      }
     });
   }
 
@@ -118,9 +121,9 @@ export class UserRuntime {
     if (this.ctx.activeFlow) return;
 
     const menu = this.ctx.menuManager.current;
-    const items = await this.ctx.menuManager.getItems(this.ctx);
+    this.menu.items = await this.ctx.menuManager.getItems(this.ctx);
 
-    await this.view.showMenu(menu, items, this.ctx);
+    await this.view.showMenu(menu, this.menu.items, this.ctx);
   }
 
   handleError(err) {

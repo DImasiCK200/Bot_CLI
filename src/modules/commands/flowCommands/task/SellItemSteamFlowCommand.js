@@ -1,9 +1,9 @@
 import { FlowCommand } from "../../FlowCommand.js";
-import { SellItemTask } from "../../../task/BuyItemTask.js";
+import { SellItemSteamTask } from "../../../task/SellItemSteamTask.js";
 
 export class SellItemSteamFlowCommand extends FlowCommand {
   execute(ctx) {
-    const task = new SellItemTask({
+    const task = new SellItemSteamTask({
       account: ctx.accountManager.currentAccount,
       steamApi: ctx.accountManager.getSteamAPI(),
       ...this.data,

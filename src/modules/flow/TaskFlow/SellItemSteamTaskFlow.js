@@ -20,7 +20,7 @@ export class SellItemSteamTaskFlow extends WizardFlow {
       },
     ]);
 
-    this.data = this.data.concat(data);
+    this.data = data;
     this.title = "SELL ITEM";
   }
 

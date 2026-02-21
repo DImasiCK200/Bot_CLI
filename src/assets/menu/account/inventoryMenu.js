@@ -32,8 +32,9 @@ export const inventoryMenu = (createCommand) => {
         inventory,
         (item) => item.market_hash_name,
       );
-      Object.entries(groupedInv).map(([name, itemArray]) => {
-        items.push(new MenuItem(name, createCommand({ name, itemArray })));
+
+      Object.entries(groupedInv).map(([name, itemsArray]) => {
+        items.push(new MenuItem(name, createCommand({ name, itemsArray })));
       });
 
       return items;

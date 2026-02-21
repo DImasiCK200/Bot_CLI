@@ -13,8 +13,10 @@ export const accountMenu = new Menu({
     `Account: ${ctx.accountManager.currentAccount?.accountName ?? "not selected"}`,
   itemsFn: (ctx) => {
     const items = [];
+    const invMenu = inventoryMenu();
+
     if (ctx.accountManager.currentAccount) {
-      items.push(new MenuItem("Inventory", new PushMenuCommand(inventoryMenu)));
+      items.push(new MenuItem("Inventory", new PushMenuCommand(invMenu)));
       items.push(
         new MenuItem("Settings", new PushMenuCommand(settingsAccountMenu)),
       );
@@ -27,6 +29,7 @@ export const accountMenu = new Menu({
         new MenuItem("Select account", new PushMenuCommand(selectAccountMenu)),
       );
     }
+
     return items;
   },
 });

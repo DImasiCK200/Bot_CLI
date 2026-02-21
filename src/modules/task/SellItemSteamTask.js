@@ -1,15 +1,16 @@
 import { Task } from "./Task.js";
 
 export class SellItemSteamTask extends Task {
-  constructor({ account, steamApi, name, price, quantity }) {
+  constructor({ account, steamApi, name, itemsArray, price, quantity }) {
     super({
       id: crypto.randomUUID(),
       type: "sell-item-steam",
-      title: `Sell: ${itemName} - ${price} RUB x${quantity}`,
+      title: `Sell: ${name} - ${price} RUB x${quantity}`,
     });
 
     this.account = account;
     this.itemName = name;
+    this.itemsArray = itemsArray;
     this.steamApi = steamApi;
     this.price = price;
     this.quantity = quantity;
@@ -18,13 +19,8 @@ export class SellItemSteamTask extends Task {
   async run() {
     try {
       this.start();
-      for (let i = 1; i <= this.quantity; i++) {
-        await new Promise((r) => setTimeout(r, 1000));
-        const progress = Math.floor((i / this.quantity) * 100);
-        if (progress !== 100) {
-          this.setProgress(Math.floor((i / this.quantity) * 100));
-        }
-      }
+
+      const itemsToSell = this.itemsArray.slice(0, this.quantity);
 
       this.complete();
     } catch (err) {
