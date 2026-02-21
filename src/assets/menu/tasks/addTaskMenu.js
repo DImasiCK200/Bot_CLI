@@ -1,5 +1,10 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
-import { BuyItemCommand } from "../../../modules/commands/index.js";
+import {
+  BuyItemCommand,
+  PushMenuCommand,
+} from "../../../modules/commands/index.js";
+import { SellItemSteamCommand } from "../../../modules/commands/index.js";
+import { inventoryMenu } from "../account/inventoryMenu.js";
 
 export const addTaskMenu = new Menu({
   title: "Add task menu",
@@ -8,5 +13,15 @@ export const addTaskMenu = new Menu({
     return `Choose task to activate`;
   },
 
-  itemsFn: (ctx) => [new MenuItem("Test command", new BuyItemCommand(ctx))],
+  itemsFn: (ctx) => {
+    const items = [];
+    const invMenu = inventoryMenu((data) => new SellItemSteamCommand(data));
+
+    items.push(new MenuItem("Test command", new BuyItemCommand(ctx)));
+    items.push(
+      new MenuItem("Sell items in Steam", new PushMenuCommand(invMenu)),
+    );
+
+    return items;
+  },
 });

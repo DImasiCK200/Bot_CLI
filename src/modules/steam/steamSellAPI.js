@@ -164,8 +164,8 @@ export class SteamSellAPI {
             "⚠️ Возможно, требуется мобильное подтверждение в Steam Guard",
           );
         }
-        if (errorMsg.includes("Session mismatch")) {
-          console.warn("⚠️ Session mismatch — проверьте куки и sessionid");
+        if (errorMsg.includes("SessionEvents mismatch")) {
+          console.warn("⚠️ SessionEvents mismatch — проверьте куки и sessionid");
         }
         return { success: false, error: errorMsg, data };
       }
@@ -174,10 +174,10 @@ export class SteamSellAPI {
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;
-        if (status === 400 && data?.message?.includes("Session mismatch")) {
+        if (status === 400 && data?.message?.includes("SessionEvents mismatch")) {
           return {
             success: false,
-            error: "Session mismatch — неверный sessionid или куки",
+            error: "SessionEvents mismatch — неверный sessionid или куки",
           };
         }
         if (status === 429) {

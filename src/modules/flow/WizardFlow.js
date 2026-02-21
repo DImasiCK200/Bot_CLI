@@ -6,8 +6,8 @@ export class WizardFlow extends Flow {
     this.steps = steps;
     this.callback = callback;
     this.commands = {
-      "/cancel": this.cancel.bind(this),
-      "/back": this.back.bind(this),
+      "/cancel": { label: "Cancel", command: this.cancel.bind(this) },
+      "/back": { label: "Back", command: this.back.bind(this) },
     };
   }
 
@@ -16,6 +16,7 @@ export class WizardFlow extends Flow {
   }
 
   start() {
+    this.started = true;
     return this.ask();
   }
 
@@ -43,7 +44,7 @@ export class WizardFlow extends Flow {
   }
 
   finish() {
-    return newResult("Done", true);
+    return this.newResult("Done", true);
   }
 
   cancel() {
@@ -52,9 +53,7 @@ export class WizardFlow extends Flow {
 
   back() {
     if (this.step > 0) {
-      console.log(this.step);
       this.step--;
-      console.log(this.step);
     }
     return this.ask();
   }

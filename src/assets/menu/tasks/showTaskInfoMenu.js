@@ -20,7 +20,10 @@ export const showTaskInfoMenu = new Menu({
     tasks.forEach((t) => {
       if (currentTask?.id !== t.id)
         items.push(
-          new MenuItem(`ID[${t.id}] - ${t.title}`, new ChooseTaskCommand(t.id)),
+          new MenuItem(
+            `ID[${t.id}] - ${t.title}(${t.progress}%)`,
+            new ChooseTaskCommand(t.id),
+          ),
         );
     });
 

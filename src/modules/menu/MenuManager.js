@@ -28,9 +28,9 @@ export class MenuManager {
     const items = await this.current.getItems(ctx);
 
     if (this.canGoBack) {
-      items.unshift(new MenuItem("Back", new BackMenuCommand()));
+      items.push(new MenuItem("Back", new BackMenuCommand()));
     } else {
-      items.unshift(new MenuItem("Exit", new ExitCommand()));
+      items.push(new MenuItem("Exit", new ExitCommand()));
     }
 
     return items;
