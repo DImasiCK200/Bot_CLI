@@ -22,10 +22,10 @@ export class MenuManager {
     this.stack.pop();
   }
 
-  getItems(ctx) {
+  async getItems(ctx) {
     if (!this.current) return [];
 
-    const items = this.current.getItems(ctx);
+    const items = await this.current.getItems(ctx);
 
     if (this.canGoBack) {
       items.unshift(new MenuItem("Back", new BackMenuCommand()));

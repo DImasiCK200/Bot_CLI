@@ -1,3 +1,5 @@
+import { Command } from "../commands/Command.js";
+
 export class Menu {
   constructor({
     title,

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { sleep } from "./utils.js";
 
 const createItems = (itemIds, prices, transformPrice = (p) => p * 100) => {
   if (!Array.isArray(itemIds) || !Array.isArray(prices)) {
