@@ -1,15 +1,15 @@
 import path from "path";
 import fs from "fs/promises";
-import { UserStorage } from "./UserStorage";
+import { UserStorage } from "./UserStorage.js";
 
-export class NewFlieStorage {
-  constructor({ baseDir = "/data" }) {
+export class NewFileStorage {
+  constructor({ baseDir = "./data" }) {
     this.baseDir = baseDir;
   }
 
-  async ensureBaseDir(baseDir) {
-    await fs.mkdir(path.join(this.baseDir, "users"), { recursive: true });
-  }
+  // async ensureBaseDir() {
+  //   await fs.mkdir(path.join(this.baseDir, "users"), { recursive: true });
+  // }
 
   forUser(userId) {
     if (!userId) {
@@ -18,7 +18,7 @@ export class NewFlieStorage {
 
     return new UserStorage({
       baseDir: this.baseDir,
-      userId: userId,
+      userId,
     });
   }
 }

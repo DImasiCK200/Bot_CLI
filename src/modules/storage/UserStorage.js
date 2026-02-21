@@ -1,4 +1,4 @@
-import { Storage } from "./Storage";
+import { Storage } from "./Storage.js";
 import path from "path";
 import fs from "fs/promises";
 
@@ -11,7 +11,8 @@ export class UserStorage extends Storage {
   }) {
     super();
 
-    this.userDir = path.join(baseDir, "users", userId);
+    this.userDir = path.join(baseDir, "users", String(userId));
+
     this.accountFile = accountFile;
     this.stateFile = stateFile;
   }
@@ -39,7 +40,12 @@ export class UserStorage extends Storage {
   }
 
   async writeJson(relPath, data) {
-    await fs.mkdir(path.dirname(this._path(relPath)), { recursive: true });
+    const fullPath = this._path(relPath);
+
+    await fs.mkdir(path.dirname(fullPath), {
+      recursive: true,
+    });
+
     await fs.writeFile(
       this._path(relPath),
       JSON.stringify(data, null, 2),

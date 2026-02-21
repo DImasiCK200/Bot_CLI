@@ -19,7 +19,7 @@ bot.api.setMyCommands([
 
 bot.command("start", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
-  const { session } = sessionManager.createSession(chatId);
+  const { session } = await sessionManager.createSession(chatId);
 
   session.start();
 });

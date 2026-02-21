@@ -1,7 +1,7 @@
 import { UserRuntime } from "./UserRuntime.js";
 import { Context } from "./Context.js";
 import { MenuManager } from "./menu/index.js";
-import { FileStorage } from "./storage/FileStorage.js";
+import { NewFileStorage } from "./storage/NewFileStorage.js";
 import { mainMenu } from "../assets/menu/mainMenu.js";
 import { TelegramView } from "./views/TelegramView.js";
 import { NotfoundError } from "./errors/index.js";
@@ -11,13 +11,15 @@ export class SessionManager {
   constructor(bot) {
     this.bot = bot;
     this.sessions = new Map();
+    this.storage = new NewFileStorage({});
   }
 
-  createSession(chatId) {
+  async createSession(chatId) {
     const session = new SessionEvents(chatId);
-    const storage = new FileStorage({ subDirs: ["sessions"] });
     const menuManager = new MenuManager();
     menuManager.push(mainMenu);
+
+    const storage = this.storage.forUser(chatId);
 
     const ctx = new Context({ storage, menuManager });
     const view = new TelegramView(this.bot, chatId, null);
