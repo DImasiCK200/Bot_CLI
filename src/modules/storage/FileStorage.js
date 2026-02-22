@@ -5,7 +5,7 @@ import fs from "fs/promises";
 
 export class FileStorage extends Storage {
   constructor({
-    baseDir = "./data",
+    baseDir = "./dataFileStorage",
     subDirs = [],
     accountFile = "accounts.json",
     stateFile = "state.json",

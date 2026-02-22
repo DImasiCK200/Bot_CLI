@@ -28,7 +28,9 @@ export class UserStorage extends Storage {
 
   async readJson(relPath, fallback = []) {
     try {
-      const data = await fs.readFile(this._path(relPath), "utf-8");
+      const fullPath = this._path(relPath);
+
+      const data = await fs.readFile(fullPath, "utf-8");
       return JSON.parse(data);
     } catch (err) {
       if (err.code === "ENOENT") {
@@ -46,44 +48,39 @@ export class UserStorage extends Storage {
       recursive: true,
     });
 
-    await fs.writeFile(
-      this._path(relPath),
-      JSON.stringify(data, null, 2),
-      "utf-8",
-    );
+    await fs.writeFile(fullPath, JSON.stringify(data, null, 2), "utf-8");
   }
 
   // Accounts
   async loadAccounts() {
-    return this.readJson(this.accountFile);
+    return await this.readJson(this.accountFile);
   }
 
   async saveAccounts(accounts) {
     const toSave = accounts.map(({ steamApi, ...rest }) => rest);
-    return this.writeJson(this.accountFile, toSave);
+    return await this.writeJson(this.accountFile, toSave);
   }
 
   async loadAppState() {
-    return this.readJson(this.stateFile, {});
+    return await this.readJson(this.stateFile);
   }
 
   async saveAppState(state) {
-    return this.writeJson(this.accountFile, state);
+    return await this.writeJson(this.stateFile, state);
   }
 
   async loadAccountSession(accountName) {
-    return this.readJson(
+    return await this.readJson(
       path.join("sessions", `session_${accountName}.json`),
-      null,
     );
   }
 
-  async saveAccountSession(accountName, state) {
+  async saveAccountSession(accountName, session) {
     const toSave = {
-      ...state,
+      ...session,
       createdAt: Date.now(),
     };
-    return this.writeJson(
+    return await this.writeJson(
       path.join("sessions", `session_${accountName}.json`),
       toSave,
     );

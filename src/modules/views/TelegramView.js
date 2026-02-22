@@ -6,6 +6,7 @@ export class TelegramView {
     this.chatId = chatId;
     this.inputResolver = null;
     this.lastMessageId = null;
+    this.lastMessage = null;
   }
 
   createKeyboard({ navItems, items }) {
@@ -67,6 +68,7 @@ export class TelegramView {
     }
 
     if (this.lastMessageId) {
+      this.lastMessage = content;
       return await this.bot.api.editMessageText(
         this.chatId,
         this.lastMessageId,
@@ -81,10 +83,22 @@ export class TelegramView {
   async showMenu(menu, items, ctx) {
     const title = menu.title;
     const desc = await menu.getDescription(ctx);
+    const itemsStrLabels = items.map((i) => i.label).join(" ");
+
+    if (
+      this.lastMessage?.msg === desc &&
+      this.lastMessage?.itemsLabels === itemsStrLabels
+    )
+      return;
 
     const keyboard = this.createKeyboard({ items });
 
     const msg = await this.showPage(title, desc, keyboard);
+    this.lastMessage = {
+      msg: desc,
+      itemsLabels: itemsStrLabels,
+    };
+
     this.lastMessageId = msg.message_id;
   }
 

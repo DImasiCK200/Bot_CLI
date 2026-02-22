@@ -10,17 +10,25 @@ export class UserRuntime {
     this.menu = {}; //TODO needs to do cahce and delete this
 
     session.on("start", async () => {
-      await this.handleStart();
+      await this.safeExecute(() => this.handleStart());
     });
     session.on("close", async () => {
-      await this.shutdown();
+      await this.safeExecute(() => this.shutdown());
     });
     session.on("message", async (data, tgCtx) => {
-      await this.handleMessage(data, tgCtx);
+      await this.safeExecute(() => this.handleMessage(data, tgCtx));
     });
     session.on("callbackQuery", async (data, tgCtx) => {
-      await this.handleCallback(data, tgCtx);
+      await this.safeExecute(() => this.handleCallback(data, tgCtx));
     });
+  }
+
+  async safeExecute(fn) {
+    try {
+      await fn();
+    } catch (err) {
+      await this.handleError(err);
+    }
   }
 
   async handleStart() {
@@ -85,8 +93,6 @@ export class UserRuntime {
 
   async init() {
     try {
-      await this.ctx.storage.ensureDir();
-
       const state = await this.ctx.storage.loadAppState();
       this.ctx.setAppState(new AppState(state));
 
@@ -102,7 +108,7 @@ export class UserRuntime {
 
       this.setupSubscriptions();
     } catch (err) {
-      this.handleError(err);
+      await this.handleError(err);
     }
   }
 
@@ -127,31 +133,37 @@ export class UserRuntime {
     await this.view.showMenu(menu, this.menu.items, this.ctx);
   }
 
-  handleError(err) {
-    if (err instanceof FatalError) {
-      this.view.sendError(err);
-      this.ctx.isRunning = false;
-      return;
-    }
-
+  async handleError(err) {
     if (err instanceof ValidationError) {
-      this.view.sendError(err);
+      this.ctx.menuManager.pop();
+      await this.renderUI();
+
+      await this.view.sendError(err);
+
       return;
     }
 
     if (err instanceof NotfoundError) {
-      this.view.sendError(err);
+      this.ctx.menuManager.pop();
+      await this.renderUI();
+
+      await this.view.sendError(err);
       this.ctx.setAppState();
+
       return;
     }
 
-    this.view.sendError(new Error("Unexpected error"));
-    this.ctx.isRunning = false;
-    console.error(err);
+    this.ctx.menuManager.pop();
+    await this.renderUI();
+
+    await this.view.sendError(new Error("Unexpected error"));
+
+    return;
   }
 
   async shutdown() {
     await this.ctx.storage.saveAppState(this.ctx.appState);
+    await this.ctx.storage.close();
     await this.view.close();
     await this.ctx.accountManager.close();
   }

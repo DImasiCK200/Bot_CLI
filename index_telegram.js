@@ -6,6 +6,7 @@ import { SessionManager } from "./src/modules/SessionManager.js";
 const bot = new Bot(process.env.BOT_API_KEY);
 const sessionManager = new SessionManager(bot);
 
+// Set command prompt to use in chat(left to text input line)
 bot.api.setMyCommands([
   {
     command: "/start",
@@ -17,6 +18,7 @@ bot.api.setMyCommands([
   },
 ]);
 
+// Handle /start
 bot.command("start", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
   const { session } = await sessionManager.createSession(chatId);
@@ -24,12 +26,14 @@ bot.command("start", async (tgCtx) => {
   session.start();
 });
 
+// Handle /delete
 bot.command("delete", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
 
   sessionManager.deleteSession(chatId);
 });
 
+// Handle all text messages
 bot.on("message:text", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
   const { session } = sessionManager.getSession(chatId);
@@ -41,14 +45,17 @@ bot.on("message:text", async (tgCtx) => {
   session.newMessage(input);
 });
 
+// Handle callbackQueries(from inlineKeyboard)
 bot.on("callback_query:data", async (tgCtx) => {
   const chatId = tgCtx.chat.id;
   const { session } = sessionManager.getSession(chatId);
   const input = tgCtx.callbackQuery.data;
+  await tgCtx.answerCallbackQuery();
 
   session.newCallbackQuery(input);
 });
 
+// Handle errors in bot
 bot.catch((err) => {
   const ctx = err.ctx;
   console.error(`Error while handling update ${ctx.update.update_id}:`);

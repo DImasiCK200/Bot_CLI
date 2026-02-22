@@ -19,7 +19,11 @@ export class MenuManager {
   }
 
   pop() {
-    this.stack.pop();
+    if (this.canGoBack) {
+      this.stack.pop();
+      return true;
+    }
+    return false;
   }
 
   async getItems(ctx) {
