@@ -26,7 +26,7 @@ export class MenuManager {
     return false;
   }
 
-  async getItems(ctx) {
+  async getItems(ctx, tgCtx) {
     if (!this.current) return [];
 
     const items = await this.current.getItems(ctx);

@@ -4,7 +4,7 @@ export class TelegramView {
   constructor(bot, chatId) {
     this.bot = bot;
     this.chatId = chatId;
-    this.inputResolver = null;
+
     this.lastMessageId = null;
     this.lastMessage = null;
   }
@@ -36,7 +36,16 @@ export class TelegramView {
     let output = `${title}\n`;
     output += message;
 
-    await this.bot.api.sendMessage(this.chatId, output);
+    const keyboard = new InlineKeyboard();
+    keyboard.text("OK", "!delete");
+
+    const options = {};
+
+    if (keyboard) {
+      options.reply_markup = keyboard;
+    }
+
+    await this.bot.api.sendMessage(this.chatId, output, options);
   }
 
   async sendError(err) {
@@ -100,6 +109,12 @@ export class TelegramView {
     };
 
     this.lastMessageId = msg.message_id;
+  }
+
+  async deleteMessage(tgCtx) {
+    const message = tgCtx.callbackQuery.message;
+
+    await tgCtx.api.deleteMessage(message.chat.id, message.message_id);
   }
 
   close() {}

@@ -1,8 +1,4 @@
 import { Menu, MenuItem } from "../../../modules/menu/index.js";
-import {
-  PushMenuCommand,
-  DeleteAccountCommand,
-} from "../../../modules/commands/index.js";
 
 export const inventoryMenu = (createCommand) => {
   return new Menu({
@@ -10,16 +6,21 @@ export const inventoryMenu = (createCommand) => {
     descriptionFn: async (ctx) => {
       let text = "";
       const steamApi = await ctx.accountManager.getSteamAPI();
-      // const { inventory } = await steamApi.getInventory();
-      // const groupedInv = Object.groupBy(
-      //   inventory,
-      //   (item) => item.market_hash_name,
-      // );
+      const steamUser = await steamApi.getSteamUser();
 
-      text += `Account: ${steamApi?.steamUser?.name || ctx.accountManager.accountName || "not selected"}\n\n`;
-      // text += Object.entries(groupedInv)
-      //   .map(([name, items]) => `${name}: ${items.length} `)
-      //   .join("\n");
+      text += `Account: ${steamUser?.name || ctx.accountManager.accountName || "not selected"}\n\n`;
+
+      if (createCommand) return text;
+
+      const { inventory } = await steamApi.getInventory();
+      const groupedInv = Object.groupBy(
+        inventory,
+        (item) => item.market_hash_name,
+      );
+
+      text += Object.entries(groupedInv)
+        .map(([name, items]) => `${name}: ${items.length} `)
+        .join("\n");
       return text;
     },
     itemsFn: async (ctx) => {

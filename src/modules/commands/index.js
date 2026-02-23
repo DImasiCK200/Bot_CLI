@@ -13,5 +13,3 @@ export { ChooseTaskCommand } from "./appCommands/tasks/ChooseTaskCommand.js";
 export { CancelTaskCommand } from "./appCommands/tasks/CancelTaskCommand.js";
 export { BuyItemCommand } from "./appCommands/tasks/BuyItemCommand.js";
 export { SellItemSteamCommand } from "./appCommands/tasks/SellItemSteamCommand.js";
-
-export { SellItemSteamFlowCommand } from "./flowCommands/task/SellItemSteamFlowCommand.js";

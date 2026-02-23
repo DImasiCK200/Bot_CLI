@@ -6,7 +6,7 @@ export const cancelTaskMenu = new Menu({
   isDynamic: true,
 
   descriptionFn: (ctx) => {
-    const tasks = ctx.taskManager.getAll();
+    const tasks = ctx.taskManager.getRunning();
 
     if (!tasks.length) return "No tasks";
 
@@ -25,9 +25,9 @@ export const cancelTaskMenu = new Menu({
     const tasks = ctx.taskManager.getRunning();
 
     tasks.forEach((t) => {
-        items.push(
-          new MenuItem(`ID[${t.id}] - ${t.title}`, new CancelTaskCommand(t.id)),
-        );
+      items.push(
+        new MenuItem(`ID[${t.id}] - ${t.title}`, new CancelTaskCommand(t.id)),
+      );
     });
 
     return items;

@@ -6,7 +6,6 @@ import { TaskManager } from "./task/TaskManager.js";
 export class Context {
   constructor({ storage, menuManager }) {
     this.isRunning = true;
-
     this.storage = storage;
 
     this.accountManager = new AccountManager({ storage });

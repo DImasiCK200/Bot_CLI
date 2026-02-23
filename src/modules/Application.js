@@ -9,8 +9,6 @@ export class Application {
 
   async init() {
     try {
-      await this.ctx.storage.ensureDir();
-
       const state = await this.ctx.storage.loadAppState();
       this.ctx.setAppState(new AppState(state));
 

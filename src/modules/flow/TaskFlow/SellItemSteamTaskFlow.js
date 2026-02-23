@@ -1,5 +1,4 @@
 import { WizardFlow } from "../WizardFlow.js";
-import { SellItemSteamFlowCommand } from "../../commands/index.js";
 
 export class SellItemSteamTaskFlow extends WizardFlow {
   constructor(callback, data) {

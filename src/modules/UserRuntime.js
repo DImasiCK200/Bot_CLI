@@ -1,5 +1,5 @@
 import { AppState } from "./AppState.js";
-import { FatalError, NotfoundError, ValidationError } from "./errors/index.js";
+import { NotfoundError, ValidationError } from "./errors/index.js";
 
 //TODO make new errorhandler
 export class UserRuntime {
@@ -7,7 +7,7 @@ export class UserRuntime {
     this.view = view;
     this.ctx = ctx;
     this.lastUpdate = 0;
-    this.menu = {}; //TODO needs to do cahce and delete this
+    this.menu = {}; //TODO needs to do cache and delete this
 
     session.on("start", async () => {
       await this.safeExecute(() => this.handleStart());
@@ -57,7 +57,7 @@ export class UserRuntime {
 
     if (!item) return;
 
-    await item.command.execute(this.ctx);
+    await item.command.execute(this.ctx, this.view, tgCtx);
 
     if (this.ctx.activeFlow) {
       await this.handleFlowInput(input, tgCtx);
@@ -157,8 +157,6 @@ export class UserRuntime {
     await this.renderUI();
 
     await this.view.sendError(new Error("Unexpected error"));
-
-    return;
   }
 
   async shutdown() {

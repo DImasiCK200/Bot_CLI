@@ -42,7 +42,14 @@ bot.on("message:text", async (tgCtx) => {
 
   await tgCtx.api.deleteMessage(message.chat.id, message.message_id);
 
-  session.newMessage(input);
+  session?.newMessage(input, tgCtx);
+});
+
+bot.callbackQuery("!delete", async (tgCtx) => {
+  await tgCtx.answerCallbackQuery();
+  const message = tgCtx.callbackQuery.message;
+
+  await tgCtx.api.deleteMessage(message.chat.id, message.message_id);
 });
 
 // Handle callbackQueries(from inlineKeyboard)
@@ -52,7 +59,7 @@ bot.on("callback_query:data", async (tgCtx) => {
   const input = tgCtx.callbackQuery.data;
   await tgCtx.answerCallbackQuery();
 
-  session.newCallbackQuery(input);
+  session?.newCallbackQuery(input, tgCtx);
 });
 
 // Handle errors in bot

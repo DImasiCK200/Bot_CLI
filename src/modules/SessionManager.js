@@ -31,7 +31,11 @@ export class SessionManager {
   }
 
   getSession(chatId) {
-    return this.sessions.get(chatId);
+    if (this.sessions.has(chatId)) {
+      return this.sessions.get(chatId);
+    } else {
+      return { session: null };
+    }
   }
 
   deleteSession(chatId) {

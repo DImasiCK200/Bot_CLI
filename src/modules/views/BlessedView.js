@@ -148,6 +148,8 @@ export class BlessedView {
     return this.getInput();
   }
 
+  async deleteMessage() {}
+
   close() {
     this.screen.destroy();
   }
